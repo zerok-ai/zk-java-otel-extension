@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package ai.zerokelvin.javaagent.mysqlinstrumentation;
+package ai.zerok.javaagent.mysqlinstrumentation;
 
 import com.google.auto.service.AutoService;
 import io.opentelemetry.javaagent.extension.instrumentation.InstrumentationModule;

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package ai.zerokelvin.javaagent.mysqlinstrumentation;
+package ai.zerok.javaagent.mysqlinstrumentation;
 
 import static io.opentelemetry.javaagent.extension.matcher.AgentElementMatchers.implementsInterface;
 import static net.bytebuddy.matcher.ElementMatchers.nameStartsWith;
