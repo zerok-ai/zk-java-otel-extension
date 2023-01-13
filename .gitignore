@@ -1,1 +1,4 @@
-.idea/
+.idea
+extension/build
+extension/.gradle
+extension/.idea
