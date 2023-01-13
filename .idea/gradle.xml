@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="GradleSettings">
+    <option name="linkedExternalProjectsSettings">
+      <GradleProjectSettings>
+        <option name="distributionType" value="DEFAULT_WRAPPED" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/examples/distro" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/examples/distro" />
+            <option value="$PROJECT_DIR$/examples/distro/agent" />
+            <option value="$PROJECT_DIR$/examples/distro/bootstrap" />
+            <option value="$PROJECT_DIR$/examples/distro/custom" />
+            <option value="$PROJECT_DIR$/examples/distro/instrumentation" />
+            <option value="$PROJECT_DIR$/examples/distro/instrumentation/servlet-3" />
+            <option value="$PROJECT_DIR$/examples/distro/smoke-tests" />
+            <option value="$PROJECT_DIR$/examples/distro/testing" />
+            <option value="$PROJECT_DIR$/examples/distro/testing/agent-for-testing" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="distributionType" value="DEFAULT_WRAPPED" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/examples/extension" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/examples/extension" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+    </option>
+  </component>
+</project>
