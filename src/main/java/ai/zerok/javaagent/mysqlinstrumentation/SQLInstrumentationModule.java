@@ -8,18 +8,16 @@ package ai.zerok.javaagent.mysqlinstrumentation;
 import com.google.auto.service.AutoService;
 import io.opentelemetry.javaagent.extension.instrumentation.InstrumentationModule;
 import io.opentelemetry.javaagent.extension.instrumentation.TypeInstrumentation;
-import io.opentelemetry.javaagent.extension.matcher.AgentElementMatchers;
 import java.util.Arrays;
 import java.util.List;
-import net.bytebuddy.matcher.ElementMatcher;
 
 /**
  * This is a demo instrumentation which hooks into servlet invocation and modifies the http
  * response.
  */
 @AutoService(InstrumentationModule.class)
-public final class MySQLCommentInstrumentationModule extends InstrumentationModule {
-  public MySQLCommentInstrumentationModule() {
+public final class SQLInstrumentationModule extends InstrumentationModule {
+  public SQLInstrumentationModule() {
     super("jdbc");
   }
 
@@ -29,18 +27,18 @@ public final class MySQLCommentInstrumentationModule extends InstrumentationModu
   }
 
   @Override
-  public ElementMatcher.Junction<ClassLoader> classLoaderMatcher() {
-    return AgentElementMatchers.hasClassesNamed("java.sql.Statement");
+  public List<TypeInstrumentation> typeInstrumentations() {
+    return Arrays.asList(
+        new SQLStatementInstrumentation(),
+        new SQLConnectionInstrumentation(),
+        new HibernateQueryInstrumentation(),
+        new MessageBuilderInstrumentation(),
+        new NativeProtocolInstrumentation(),
+        new DatabaseMetadataInstrumentation());
   }
 
   @Override
-  public List<TypeInstrumentation> typeInstrumentations() {
-    return Arrays.asList(
-        new MySQLPreparedStatementCommentInstrumentation(),
-        new MySQLStatementCommentInstrumentation());
+  public boolean isHelperClass(String className) {
+    return className.startsWith("ai.zerok.javaagent.advice");
   }
-
-  //  public List<TypeInstrumentation> typeInstrumentations() {
-  //    return singletonList(new MySQLAddCommentInstrumentation());
-  //  }
 }
