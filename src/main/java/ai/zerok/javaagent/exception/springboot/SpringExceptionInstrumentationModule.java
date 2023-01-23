@@ -8,8 +8,8 @@ import java.util.Arrays;
 import java.util.List;
 
 @AutoService(InstrumentationModule.class)
-public final class ExceptionInstrumentationModule extends InstrumentationModule {
-    public ExceptionInstrumentationModule() {
+public final class SpringExceptionInstrumentationModule extends InstrumentationModule {
+    public SpringExceptionInstrumentationModule() {
         super("springboot-exception");
     }
 
@@ -21,7 +21,7 @@ public final class ExceptionInstrumentationModule extends InstrumentationModule 
     @Override
     public List<TypeInstrumentation> typeInstrumentations() {
         return Arrays.asList(
-                new ExceptionResolverInstrumentation());
+                new SpringExceptionResolverInstrumentation());
     }
 
 }
