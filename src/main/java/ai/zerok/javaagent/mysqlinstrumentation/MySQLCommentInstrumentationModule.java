@@ -1,8 +1,3 @@
-/*
- * Copyright The OpenTelemetry Authors
- * SPDX-License-Identifier: Apache-2.0
- */
-
 package ai.zerok.javaagent.mysqlinstrumentation;
 
 import com.google.auto.service.AutoService;

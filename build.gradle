@@ -11,7 +11,6 @@ plugins {
   See https://imperceptiblethoughts.com/shadow/ for more details about Shadow plugin.
    */
   id "com.github.johnrengelman.shadow" version "7.1.2"
-  id "com.diffplug.spotless" version "6.12.0"
 
   id "io.opentelemetry.instrumentation.muzzle-generation" version "1.21.0-alpha-SNAPSHOT"
   id "io.opentelemetry.instrumentation.muzzle-check" version "1.21.0-alpha-SNAPSHOT"
@@ -51,13 +50,6 @@ configurations {
   otel
 }
 
-spotless {
-  java {
-    googleJavaFormat()
-    licenseHeaderFile(rootProject.file("./spotless.license.java"), "(package|import|public)")
-    target("src/**/*.java")
-  }
-}
 
 dependencies {
   api(platform("io.opentelemetry:opentelemetry-bom:1.21.0"))
