@@ -1,5 +1,6 @@
-package ai.zerok.javaagent.exception.dropwizard;
+package ai.zerok.javaagent.exception.Dropwizard;
 
+import ai.zerok.javaagent.exception.Dropwizard.DropwizardExceptionResolverInstrumentation;
 import com.google.auto.service.AutoService;
 import io.opentelemetry.javaagent.extension.instrumentation.InstrumentationModule;
 import io.opentelemetry.javaagent.extension.instrumentation.TypeInstrumentation;
@@ -22,6 +23,11 @@ public final class DropWizardExceptionInstrumentationModule extends Instrumentat
     public List<TypeInstrumentation> typeInstrumentations() {
         return Arrays.asList(
                 new DropwizardExceptionResolverInstrumentation());
+    }
+
+    @Override
+    public boolean isHelperClass(String className) {
+        return className.equals("ai.zerok.javaagent.exception.Utils");
     }
 
 }
