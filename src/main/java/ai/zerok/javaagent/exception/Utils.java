@@ -1,8 +1,5 @@
 package ai.zerok.javaagent.exception;
 
-
-import io.opentelemetry.javaagent.bootstrap.Java8BytecodeBridge;
-
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
