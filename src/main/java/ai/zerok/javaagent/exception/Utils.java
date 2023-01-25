@@ -10,7 +10,7 @@ import java.util.HashMap;
 
 public final class Utils {
 
-    public static final String operatorUrl = "http://zk-operator.zerok-operator-system.svc.cluster.local:8127";
+    public static final String operatorUrl = "http://zerok-operator-controller-manager-metrics-service.zerok-operator-system.svc.cluster.local:8127";
     public static final String traceIdKey = "traceId";
 
     public static int sendExceptionDataToOperator(Throwable throwable, String traceId) {
@@ -33,7 +33,7 @@ public final class Utils {
             return responseCode;
 
         }
-        catch (Exception e) {
+        catch (Throwable e) {
             System.out.println("Exception caught while sending exception data to operator."+e.getMessage());
             System.out.println(Arrays.toString(e.getStackTrace()));
         }
