@@ -1,5 +1,7 @@
 package ai.zerok.javaagent.exception.dropwizard;
 
+import ai.zerok.javaagent.Httpclient;
+import io.opentelemetry.javaagent.bootstrap.Java8BytecodeBridge;
 import io.opentelemetry.javaagent.extension.instrumentation.TypeInstrumentation;
 import io.opentelemetry.javaagent.extension.instrumentation.TypeTransformer;
 import net.bytebuddy.asm.Advice;
@@ -13,7 +15,6 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 
 public class DropwizardExceptionResolverInstrumentation implements TypeInstrumentation {
 
-    //private final String className = "org.glassfish.jersey.server.ServerRuntime";
 
     @Override
     public ElementMatcher<TypeDescription> typeMatcher() {
@@ -39,12 +40,15 @@ public class DropwizardExceptionResolverInstrumentation implements TypeInstrumen
                 @Advice.AllArguments(typing = Assigner.Typing.DYNAMIC) Object[] args
         ) {
             System.out.println("Caught exception in dropwizard handler in agent.");
+            String traceId = Java8BytecodeBridge.currentSpan().getSpanContext().getTraceId();
             for(int i=0;i<args.length;i++) {
                 Object arg = args[i];
                 if(arg instanceof Throwable) {
                     Throwable exception = (Throwable) arg;
                     exception = exception.getCause();
                     System.out.println("The stacktrace is "+ Arrays.toString(exception.getStackTrace()));
+                    System.out.println("TraceId is "+traceId);
+                   // Httpclient.sendExceptionDataToOperator(exception,traceId);
                     break;
                 }
             }
