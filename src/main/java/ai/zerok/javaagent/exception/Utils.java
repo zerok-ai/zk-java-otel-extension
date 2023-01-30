@@ -10,7 +10,7 @@ import java.util.HashMap;
 
 public final class Utils {
 
-    public static final String operatorUrl = "http://zerok-operator-controller-manager-metrics-service.zerok-operator-system.svc.cluster.local:8127";
+    public static final String operatorUrl = "http://zerok-operator-service.zerok-operator-system.svc.cluster.local:8127/exception";
     public static final String traceIdKey = "traceId";
 
     public static int sendExceptionDataToOperator(Throwable throwable, String traceId) {
