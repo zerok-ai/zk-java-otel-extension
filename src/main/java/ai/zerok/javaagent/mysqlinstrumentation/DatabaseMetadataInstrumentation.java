@@ -8,7 +8,7 @@ package ai.zerok.javaagent.mysqlinstrumentation;
 import static io.opentelemetry.javaagent.extension.matcher.AgentElementMatchers.implementsInterface;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
-import ai.zerok.javaagent.advice.CommentBuilder;
+import ai.zerok.javaagent.instrumentation.hibernate.CommentBuilder;
 import io.opentelemetry.javaagent.extension.instrumentation.TypeInstrumentation;
 import io.opentelemetry.javaagent.extension.instrumentation.TypeTransformer;
 import net.bytebuddy.asm.Advice;
@@ -28,7 +28,7 @@ public class DatabaseMetadataInstrumentation implements TypeInstrumentation {
         named("prepareMetaDataSafeStatement")
             .and(ElementMatchers.takesArgument(0, String.class))
             .and(ElementMatchers.isProtected()),
-        DatabaseMetadataInstrumentation.class.getName() + "$PrepareMetaDataSafeStatementAdvice");
+        PrepareMetaDataSafeStatementAdvice.class.getName());
   }
 
   @SuppressWarnings("unused")

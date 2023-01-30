@@ -31,7 +31,7 @@ public final class SQLInstrumentationModule extends InstrumentationModule {
     return Arrays.asList(
         new SQLStatementInstrumentation(),
         new SQLConnectionInstrumentation(),
-        new HibernateQueryInstrumentation(),
+        //        new HibernateQueryInstrumentation(),
         new MessageBuilderInstrumentation(),
         new NativeProtocolInstrumentation(),
         new DatabaseMetadataInstrumentation());
@@ -39,6 +39,6 @@ public final class SQLInstrumentationModule extends InstrumentationModule {
 
   @Override
   public boolean isHelperClass(String className) {
-    return className.startsWith("ai.zerok.javaagent.advice");
+    return className.startsWith("ai.zerok.javaagent.instrumentation.hibernate");
   }
 }

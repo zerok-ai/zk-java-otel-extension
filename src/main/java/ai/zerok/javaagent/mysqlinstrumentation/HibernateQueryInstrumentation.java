@@ -8,7 +8,9 @@ package ai.zerok.javaagent.mysqlinstrumentation;
 import static io.opentelemetry.javaagent.extension.matcher.AgentElementMatchers.implementsInterface;
 import static net.bytebuddy.matcher.ElementMatchers.*;
 
-import io.opentelemetry.javaagent.bootstrap.Java8BytecodeBridge;
+import ai.zerok.javaagent.instrumentation.hibernate.CommentBuilder;
+import ai.zerok.javaagent.instrumentation.hibernate.HibernateOperation;
+import io.opentelemetry.javaagent.bootstrap.CallDepth;
 import io.opentelemetry.javaagent.extension.instrumentation.TypeInstrumentation;
 import io.opentelemetry.javaagent.extension.instrumentation.TypeTransformer;
 import net.bytebuddy.asm.Advice;
@@ -26,19 +28,24 @@ public class HibernateQueryInstrumentation implements TypeInstrumentation {
   public void transform(TypeTransformer transformer) {
 
     transformer.applyAdviceToMethod(
-        //        isMethod().and(namedOneOf("list", "executeUpdate", "uniqueResult", "iterate",
-        // "scroll")),
-        isMethod().and(named("getQueryString")),
-        HibernateQueryInstrumentation.class.getName() + "$GetQueryStringAdvice");
+        isMethod().and(named("setComment")), GetQueryStringAdvice.class.getName());
   }
 
   @SuppressWarnings("unused")
   public static class GetQueryStringAdvice {
     @Advice.OnMethodEnter(suppress = Throwable.class)
-    public static void startMethod(@Advice.This Query query) {
-      String traceId = Java8BytecodeBridge.currentSpan().getSpanContext().getTraceId();
-      query.setComment("HibernateQueryInstrumentation_getQueryString traceId: " + traceId);
-      System.out.println("Inside hibernate Query instrumentation");
+    public static void startMethod(
+        @Advice.Local("otelCallDepth") CallDepth callDepth,
+        @Advice.Argument(value = 0, readOnly = false) String sql,
+        @Advice.Local("otelHibernateOperation") HibernateOperation hibernateOperation,
+        @Advice.This Query query) {
+      callDepth = CallDepth.forClass(HibernateOperation.class);
+      if (callDepth.getAndIncrement() > 0) {
+        return;
+      }
+      sql =
+          CommentBuilder.addCommentToQueryString(
+              sql, "HibernateQueryInstrumentation_getQueryString");
     }
   }
 }
