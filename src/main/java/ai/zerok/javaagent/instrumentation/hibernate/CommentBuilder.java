@@ -5,6 +5,7 @@
 
 package ai.zerok.javaagent.instrumentation.hibernate;
 
+import ai.zerok.javaagent.utils.Utils;
 import io.opentelemetry.api.trace.SpanContext;
 import io.opentelemetry.javaagent.bootstrap.Java8BytecodeBridge;
 
@@ -18,9 +19,12 @@ public class CommentBuilder {
 
   public static String addCommentToQueryString(String sql, String queryIdentifier) {
     SpanContext spanContext = Java8BytecodeBridge.currentSpan().getSpanContext();
-    String comment =
-        addComment(
-            addSpanId(addTraceId(addQueryIdentifier(queryIdentifier), spanContext), spanContext));
+    String traceParent = Utils.getTraceParent(spanContext.getTraceId(),spanContext.getSpanId());
+    String comment = Utils.getTraceIdKey() + ":" +traceParent;
+    comment = addComment(comment);
+//    String comment =
+//        addComment(
+//            addSpanId(addTraceId(addQueryIdentifier(queryIdentifier), spanContext), spanContext));
     sql = comment + sql;
     System.out.println(sql);
     return sql;

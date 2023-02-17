@@ -1,4 +1,4 @@
-package ai.zerok.javaagent.exception;
+package ai.zerok.javaagent.utils;
 
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -11,16 +11,21 @@ import java.util.HashMap;
 public final class Utils {
 
     public static final String operatorUrl = "http://zerok-operator-service.zerok-operator-system.svc.cluster.local:8127/exception";
-    public static final String traceIdKey = "traceId";
+    public static final String traceIdKey = "traceparent";
 
-    public static int sendExceptionDataToOperator(Throwable throwable, String traceId) {
+    public static String getTraceIdKey() {
+         return traceIdKey;
+    }
+
+    public static int sendExceptionDataToOperator(Throwable throwable, String traceId, String spanId) {
         try {
             URL url = new URL(operatorUrl);
             URLConnection con = url.openConnection();
             HttpURLConnection httpURLConnection = (HttpURLConnection)con;
             httpURLConnection.setRequestMethod("POST");
             httpURLConnection.setRequestProperty("Content-type", "application/json");
-            httpURLConnection.setRequestProperty(traceIdKey,traceId);
+            String traceParent = getTraceParent(traceId, spanId);
+            httpURLConnection.setRequestProperty(traceIdKey,traceParent);
             httpURLConnection.setDoOutput(true);
 
             String body = getExceptionPayload(throwable);
@@ -47,5 +52,10 @@ public final class Utils {
         map.put("stacktrace",stackTraceString);
         System.out.println("json string is "+map);
         return map.toString();
+    }
+
+    public static String getTraceParent(String traceId, String spanId) {
+        String sep = "-";
+        return "00" + sep + traceId + sep + spanId + sep + "00";
     }
 }

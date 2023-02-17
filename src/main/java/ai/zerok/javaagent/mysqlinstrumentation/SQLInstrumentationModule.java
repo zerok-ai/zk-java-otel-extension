@@ -34,6 +34,6 @@ public final class SQLInstrumentationModule extends InstrumentationModule {
 
   @Override
   public boolean isHelperClass(String className) {
-    return className.startsWith("ai.zerok.javaagent.instrumentation.hibernate");
+    return className.startsWith("ai.zerok.javaagent.instrumentation.hibernate") || className.equals("ai.zerok.javaagent.utils.Utils");
   }
 }

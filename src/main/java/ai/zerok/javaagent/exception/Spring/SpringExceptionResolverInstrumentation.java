@@ -1,6 +1,6 @@
 package ai.zerok.javaagent.exception.Spring;
 
-import ai.zerok.javaagent.exception.Utils;
+import ai.zerok.javaagent.utils.Utils;
 import io.opentelemetry.javaagent.bootstrap.Java8BytecodeBridge;
 import io.opentelemetry.javaagent.extension.instrumentation.TypeInstrumentation;
 import io.opentelemetry.javaagent.extension.instrumentation.TypeTransformer;
@@ -42,13 +42,14 @@ public class SpringExceptionResolverInstrumentation implements TypeInstrumentati
         ) {
             System.out.println("Caught exception in spring handler in agent.");
             String traceId = Java8BytecodeBridge.currentSpan().getSpanContext().getTraceId();
+            String spandId = Java8BytecodeBridge.currentSpan().getSpanContext().getSpanId();
             for(int i=0;i<args.length;i++) {
                 Object arg = args[i];
                 if(arg instanceof Throwable) {
                     Throwable exception = (Throwable) arg;
                     System.out.println("The stacktrace is "+ Arrays.toString(exception.getStackTrace()));
                     System.out.println("TraceId is "+traceId);
-                    int responsecode = Utils.sendExceptionDataToOperator(exception,traceId);
+                    int responsecode = Utils.sendExceptionDataToOperator(exception,traceId, spandId);
                     break;
                 }
             }

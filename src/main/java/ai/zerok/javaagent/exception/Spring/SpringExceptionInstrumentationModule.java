@@ -27,7 +27,7 @@ public final class SpringExceptionInstrumentationModule extends InstrumentationM
 
     @Override
     public boolean isHelperClass(String className) {
-        return className.equals("ai.zerok.javaagent.exception.Utils");
+        return className.equals("ai.zerok.javaagent.utils.Utils");
     }
 
 }
