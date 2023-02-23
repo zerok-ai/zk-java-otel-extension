@@ -23,21 +23,9 @@ public class CommentBuilder {
   public static String addCommentToQueryString(String sql, String queryIdentifier) {
     Span span = Java8BytecodeBridge.currentSpan();
 
-    String traceState = null;
+    String parentSpandId = Utils.getParentSpandId(span);
 
-    try {
-      Class<?> classObj = span.getClass();
-      Method getParent = classObj.getDeclaredMethod("getParentSpanContext");
-      getParent.setAccessible(true);
-      SpanContext parentSpan = (SpanContext) getParent.invoke(span);
-      if(parentSpan != null) {
-        traceState = Utils.getTraceState(parentSpan.getSpanId());
-      }
-    }
-    catch (Exception e) {
-       System.out.println("Exception caught while getting parent span.");
-      e.printStackTrace();
-    }
+    String traceState = Utils.getTraceState(parentSpandId);
 
     SpanContext spanContext = span.getSpanContext();
     String traceParent = Utils.getTraceParent(spanContext.getTraceId(),spanContext.getSpanId());

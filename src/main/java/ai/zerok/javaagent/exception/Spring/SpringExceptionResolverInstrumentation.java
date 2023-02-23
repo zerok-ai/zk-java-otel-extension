@@ -41,15 +41,11 @@ public class SpringExceptionResolverInstrumentation implements TypeInstrumentati
                 @Advice.AllArguments(typing = Assigner.Typing.DYNAMIC) Object[] args
         ) {
             System.out.println("Caught exception in spring handler in agent.");
-            String traceId = Java8BytecodeBridge.currentSpan().getSpanContext().getTraceId();
-            String spandId = Java8BytecodeBridge.currentSpan().getSpanContext().getSpanId();
             for(int i=0;i<args.length;i++) {
                 Object arg = args[i];
                 if(arg instanceof Throwable) {
                     Throwable exception = (Throwable) arg;
-                    System.out.println("The stacktrace is "+ Arrays.toString(exception.getStackTrace()));
-                    System.out.println("TraceId is "+traceId);
-                    int responsecode = Utils.sendExceptionDataToOperator(exception,traceId, spandId);
+                    int responsecode = Utils.sendExceptionDataToOperator(exception,Java8BytecodeBridge.currentSpan());
                     break;
                 }
             }

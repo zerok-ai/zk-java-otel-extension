@@ -1,19 +1,25 @@
 package ai.zerok.javaagent.utils;
 
+import io.opentelemetry.api.trace.SpanContext;
+
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.javaagent.bootstrap.Java8BytecodeBridge;
 
 public final class Utils {
 
     public static final String operatorUrl = "http://zerok-operator-service.zerok-operator-system.svc.cluster.local:8127/exception";
-    public static final String traceParentKey = "traceparent";
+    private static final String traceParentKey = "traceparent";
+    private static final String traceStateKey = "tracestate";
 
-    public static final String traceStateKey = "tracestate";
+    private static final String traceStatePrefix = "zerok=";
 
     public static String getTraceParentKey() {
          return traceParentKey;
@@ -23,8 +29,10 @@ public final class Utils {
         return traceStateKey;
     }
 
-    public static int sendExceptionDataToOperator(Throwable throwable, String traceId, String spanId) {
+    public static int sendExceptionDataToOperator(Throwable throwable, Span span) {
         try {
+            String traceId = span.getSpanContext().getTraceId();
+            String spanId = span.getSpanContext().getSpanId();
             URL url = new URL(operatorUrl);
             URLConnection con = url.openConnection();
             HttpURLConnection httpURLConnection = (HttpURLConnection)con;
@@ -32,6 +40,12 @@ public final class Utils {
             httpURLConnection.setRequestProperty("Content-type", "application/json");
             String traceParent = getTraceParent(traceId, spanId);
             httpURLConnection.setRequestProperty(traceParentKey,traceParent);
+            String parentSpanId = Utils.getParentSpandId(span);
+            String traceState = getTraceState(parentSpanId);
+            if (traceState != null ){
+                httpURLConnection.setRequestProperty(traceStateKey,traceState);
+            }
+
             httpURLConnection.setDoOutput(true);
 
             String body = getExceptionPayload(throwable);
@@ -66,6 +80,21 @@ public final class Utils {
     }
 
     public static String getTraceState(String spandId) {
-        return spandId;
+        return traceStatePrefix + spandId;
+    }
+
+    public static String getParentSpandId(Span span) {
+        String parentSpanId = null;
+        try {
+            Class<?> classObj = span.getClass();
+            Method getParent = classObj.getDeclaredMethod("getParentSpanContext");
+            getParent.setAccessible(true);
+            SpanContext parentSpan = (SpanContext) getParent.invoke(span);
+            parentSpanId = parentSpan.getSpanId();
+        }
+        catch (Exception e) {
+            System.out.println("Exception caught while getting parent span id.");
+        }
+        return parentSpanId;
     }
 }
