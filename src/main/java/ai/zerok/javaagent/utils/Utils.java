@@ -11,10 +11,16 @@ import java.util.HashMap;
 public final class Utils {
 
     public static final String operatorUrl = "http://zerok-operator-service.zerok-operator-system.svc.cluster.local:8127/exception";
-    public static final String traceIdKey = "traceparent";
+    public static final String traceParentKey = "traceparent";
 
-    public static String getTraceIdKey() {
-         return traceIdKey;
+    public static final String traceStateKey = "tracestate";
+
+    public static String getTraceParentKey() {
+         return traceParentKey;
+    }
+
+    public static String getTraceStateKey() {
+        return traceStateKey;
     }
 
     public static int sendExceptionDataToOperator(Throwable throwable, String traceId, String spanId) {
@@ -25,7 +31,7 @@ public final class Utils {
             httpURLConnection.setRequestMethod("POST");
             httpURLConnection.setRequestProperty("Content-type", "application/json");
             String traceParent = getTraceParent(traceId, spanId);
-            httpURLConnection.setRequestProperty(traceIdKey,traceParent);
+            httpURLConnection.setRequestProperty(traceParentKey,traceParent);
             httpURLConnection.setDoOutput(true);
 
             String body = getExceptionPayload(throwable);
@@ -57,5 +63,9 @@ public final class Utils {
     public static String getTraceParent(String traceId, String spanId) {
         String sep = "-";
         return "00" + sep + traceId + sep + spanId + sep + "00";
+    }
+
+    public static String getTraceState(String spandId) {
+        return spandId;
     }
 }
