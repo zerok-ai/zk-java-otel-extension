@@ -91,6 +91,9 @@ dependencies {
   implementation 'io.opentelemetry.instrumentation:opentelemetry-jdbc:1.21.0-alpha'
 //Thanks for using https://jar-download.com
 
+  //Jakarta Servlet API to support springboot http instrumentation
+  implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+
   //All dependencies below are only for tests
   testImplementation("org.testcontainers:testcontainers:1.17.6")
   testImplementation("com.fasterxml.jackson.core:jackson-databind:2.14.1")

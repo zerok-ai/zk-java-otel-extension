@@ -1,12 +1,12 @@
-package ai.zerok.javaagent.http;
+package ai.zerok.javaagent.http.spring;
 
 import ai.zerok.javaagent.utils.Utils;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanContext;
 import io.opentelemetry.javaagent.bootstrap.Java8BytecodeBridge;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
 import java.util.Enumeration;
 
@@ -14,14 +14,19 @@ public class HttpModifier {
 
 
     public static HttpServletResponse addTraceHeaders(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-        Enumeration<String> headerNames = httpServletRequest.getHeaderNames();
+        Enumeration<String> requestHeaderNames = httpServletRequest.getHeaderNames();
         boolean isTracestatePresent = false;
-        while(headerNames.hasMoreElements()){
-            String requestheaderName = headerNames.nextElement();
+        while(requestHeaderNames.hasMoreElements()){
+            String requestheaderName = requestHeaderNames.nextElement();
             if(requestheaderName.equals(Utils.getTraceStateKey())){
                 isTracestatePresent = true;
             }
         }
+
+        isTracestatePresent = isTracestatePresent || httpServletResponse.getHeaderNames().contains(Utils.getTraceStateKey());
+//        Collection<String> responseHeaderNames = httpServletResponse.getHeaderNames();
+//        isTracestatePresent = responseHeaderNames.contains(Utils.getTraceStateKey());
+
         if(!isTracestatePresent){
             Span span = Java8BytecodeBridge.currentSpan();
             SpanContext spanContext = span.getSpanContext();

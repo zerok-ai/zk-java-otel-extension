@@ -1,4 +1,4 @@
-package ai.zerok.javaagent.http;
+package ai.zerok.javaagent.http.dropwizard;
 
 import io.opentelemetry.javaagent.extension.instrumentation.TypeInstrumentation;
 import io.opentelemetry.javaagent.extension.instrumentation.TypeTransformer;
@@ -19,13 +19,12 @@ public class HttpServletInstrumentation implements TypeInstrumentation {
 
     @Override
     public ElementMatcher<TypeDescription> typeMatcher() {
-//        return named("org.glassfish.jersey.servlet.ServletContainer");
         return extendsClass(named(baseClassName));
     }
 
 
     public void transform(TypeTransformer transformer) {
-        System.out.println("Inside extends HttpServlet 1.11....");
+        System.out.println("Inside extends javax.HttpServlet 1.11....");
 
         transformer.applyAdviceToMethod(
                 named("service")
@@ -33,7 +32,7 @@ public class HttpServletInstrumentation implements TypeInstrumentation {
 //                ServletContainerInstrumentation.class.getName() + "$HttpServletServiceAdvice");
                 ServletContainerServiceAdvice.class.getName());
 
-        System.out.println("Inside extends HttpServlet 1.22....");
+        System.out.println("Inside extends javax.HttpServlet 1.22....");
     }
 
     @SuppressWarnings("unused")

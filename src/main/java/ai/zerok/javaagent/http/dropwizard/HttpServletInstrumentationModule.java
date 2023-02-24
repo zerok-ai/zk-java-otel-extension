@@ -1,4 +1,4 @@
-package ai.zerok.javaagent.http;
+package ai.zerok.javaagent.http.dropwizard;
 
 import com.google.auto.service.AutoService;
 import io.opentelemetry.javaagent.extension.instrumentation.InstrumentationModule;
