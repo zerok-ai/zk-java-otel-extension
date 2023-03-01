@@ -12,20 +12,48 @@ import java.util.Enumeration;
 
 public class HttpModifier {
 
-
-    public static HttpServletResponse addTraceHeaders(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    private static boolean isTraceIdentifierPresent(HttpServletRequest httpServletRequest){
         Enumeration<String> requestHeaderNames = httpServletRequest.getHeaderNames();
-        boolean isTracestatePresent = false;
+        boolean isTraceIdentifierPresent = false;
         while(requestHeaderNames.hasMoreElements()){
             String requestheaderName = requestHeaderNames.nextElement();
-            if(requestheaderName.equals(Utils.getTraceStateKey())){
-                isTracestatePresent = true;
+            if(requestheaderName.equals(Utils.getTraceParentKey())){
+                isTraceIdentifierPresent = true;
             }
         }
 
-        isTracestatePresent = isTracestatePresent || httpServletResponse.getHeaderNames().contains(Utils.getTraceStateKey());
-//        Collection<String> responseHeaderNames = httpServletResponse.getHeaderNames();
-//        isTracestatePresent = responseHeaderNames.contains(Utils.getTraceStateKey());
+        return isTraceIdentifierPresent;
+    }
+
+    private static boolean isTraceIdentifierPresent(HttpServletResponse httpServletResponse){
+        return httpServletResponse.getHeaderNames().contains(Utils.getTraceParentKey());
+    }
+
+    public static HttpServletResponse addTraceHeaders(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+        boolean isTracestatePresent = isTraceIdentifierPresent(httpServletRequest);
+
+        if(false) {
+            System.out.println("------------------------");
+            System.out.println("Request URI - " + httpServletRequest.getMethod() + "---" + httpServletRequest.getRequestURI());
+            Span span1 = Java8BytecodeBridge.currentSpan();
+            SpanContext spanContext1 = span1.getSpanContext();
+            String spanId1 = spanContext1.getSpanId();
+            String parentSpandId1 = Utils.getParentSpandId(span1);
+            System.out.println("SpanId - " + spanId1);
+            System.out.println("ParentSpanId - " + parentSpandId1);
+            System.out.println("-----------REQUEST HEADERS-------------");
+            System.out.println("tracestate - " + httpServletRequest.getHeader("tracestate"));
+            System.out.println("traceparent - " + httpServletRequest.getHeader("traceparent"));
+            System.out.println("-----------RESPONSE HEADERS-------------");
+            System.out.println("tracestate - " + httpServletResponse.getHeader("tracestate"));
+            System.out.println("traceparent - " + httpServletResponse.getHeader("traceparent"));
+            System.out.println("------------------------");
+            System.out.println("");
+            System.out.println("");
+            System.out.println("");
+        }
+
+//        isTracestatePresent = isTracestatePresent || isTraceIdentifierPresent(httpServletResponse);// httpServletResponse.getHeaderNames().contains(Utils.getTraceStateKey());
 
         if(!isTracestatePresent){
             Span span = Java8BytecodeBridge.currentSpan();
@@ -33,7 +61,7 @@ public class HttpModifier {
             String spanId = spanContext.getSpanId();
             String traceId = spanContext.getTraceId();
             String parentSpandId = Utils.getParentSpandId(span);
-            String traceState = Utils.getTraceState(spanId);
+            String traceState = Utils.getTraceState(parentSpandId);
             String traceParent = Utils.getTraceParent(traceId, spanId);
             httpServletResponse.addHeader(Utils.getTraceParentKey(), traceParent);
             httpServletResponse.addHeader(Utils.getTraceStateKey(), traceState);
