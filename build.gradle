@@ -119,7 +119,7 @@ dependencies {
 tasks {
 
   compileJava {
-    options.release.set(8)
+    options.release.set(18)
   }
 
   assemble.dependsOn(shadowJar)
@@ -139,3 +139,5 @@ muzzle {
     assertInverse.set(true)
   }
 }
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
