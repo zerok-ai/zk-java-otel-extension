@@ -29,7 +29,6 @@ public class HttpServletInstrumentation implements TypeInstrumentation {
         transformer.applyAdviceToMethod(
                 named("service")
                         .and(ElementMatchers.isProtected()),
-//                ServletContainerInstrumentation.class.getName() + "$HttpServletServiceAdvice");
                 ServletContainerServiceAdvice.class.getName());
 
         System.out.println("Inside extends javax.HttpServlet 1.22....");

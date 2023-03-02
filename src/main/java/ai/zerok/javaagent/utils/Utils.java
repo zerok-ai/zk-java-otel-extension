@@ -19,7 +19,8 @@ public final class Utils {
     private static final String traceParentKey = "traceparent";
     private static final String traceStateKey = "tracestate";
 
-    private static final String traceStatePrefix = "zerok=";
+    private static final String traceStateZkKey = "zerok";
+    private static final String traceStatePrefix = traceStateZkKey + "=";
 
     public static String getTraceParentKey() {
          return traceParentKey;
@@ -27,6 +28,14 @@ public final class Utils {
 
     public static String getTraceStateKey() {
         return traceStateKey;
+    }
+
+    public static String getTraceStatePrefix() {
+        return traceStatePrefix;
+    }
+
+    public static String getTraceStateZkKey() {
+        return traceStateZkKey;
     }
 
     public static int sendExceptionDataToOperator(Throwable throwable, Span span) {
@@ -83,6 +92,13 @@ public final class Utils {
         return traceStatePrefix + spandId;
     }
 
+    public static String getTraceState() {
+        Span span = Java8BytecodeBridge.currentSpan();
+        SpanContext spanContext = span.getSpanContext();
+        String spanId = spanContext.getSpanId();
+        return traceStatePrefix + spanId;
+    }
+
     public static String getParentSpandId(Span span) {
         String parentSpanId = null;
         try {
@@ -97,4 +113,5 @@ public final class Utils {
         }
         return parentSpanId;
     }
+
 }

@@ -26,7 +26,9 @@ public class HttpServletInstrumentationModule extends InstrumentationModule {
 
     @Override
     public boolean isHelperClass(String className) {
-        return className.startsWith("ai.zerok.javaagent.http") || className.equals("ai.zerok.javaagent.utils.Utils");
+        return
+                className.startsWith("ai.zerok.javaagent.utils")
+                || className.equals("ai.zerok.javaagent.http.spring.HttpModifier");
     }
 
 }

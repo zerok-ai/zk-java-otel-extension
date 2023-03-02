@@ -18,18 +18,16 @@ public class HttpServletInstrumentation implements TypeInstrumentation {
 
     @Override
     public ElementMatcher<TypeDescription> typeMatcher() {
-//        return named("org.glassfish.jersey.servlet.ServletContainer");
         return extendsClass(named(baseClassName));
     }
 
 
     public void transform(TypeTransformer transformer) {
         System.out.println("Inside extends jakarta.HttpServlet 1.11....");
-
+        javax.servlet.http.HttpServletResponse httpServletResponse2 = null;
         transformer.applyAdviceToMethod(
                 named("service")
                         .and(ElementMatchers.isProtected()),
-//                ServletContainerInstrumentation.class.getName() + "$HttpServletServiceAdvice");
                 ServletContainerServiceAdvice.class.getName());
 
         System.out.println("Inside extends jakarta.HttpServlet 1.22....");
