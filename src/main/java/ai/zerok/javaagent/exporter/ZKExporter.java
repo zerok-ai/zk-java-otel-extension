@@ -19,14 +19,20 @@ public class ZKExporter implements SpanExporter {
 
     @Override
     public CompletableResultCode export(Collection<SpanData> spanDataList) {
-        // Implement the export logic for the span data
-        // Send the telemetry data to your backend or monitoring system
-        // Return the appropriate ResultCode indicating success or failure
-
-        Map<String, TraceDetails> Store = generateStoreForSpanData(spanDataList);
-
-
         CompletableResultCode result = new CompletableResultCode();
+        try {
+            // export logic for processing the span data.
+            Map<String, TraceDetails> Store = generateStoreForSpanData(spanDataList);
+
+            // queuing the telemetry data to sync with redis
+            for (String traceId : Store.keySet()) {
+                TraceDetails traceDetails = Store.get(traceId);
+                redisHandler.putTraceData(traceId, traceDetails);
+            }
+        } catch (Exception e) {
+            result.fail();
+            return result;
+        }
         result.succeed();
         return result;
     }
@@ -43,16 +49,13 @@ public class ZKExporter implements SpanExporter {
 
             SpanDetails spanDetails = new SpanDetails();
             spanDetails.setParentSpanID(spanData.getParentSpanId());
-            spanDetails.setSpanKind(String.valueOf(spanData.getKind()));
+            spanDetails.setSpanKind(spanData.getKind());
             spanDetails.setLocalEndpoint(ZKSpanUtils.getLocalEndpoint(spanData));
             spanDetails.setRemoteEndpoint(ZKSpanUtils.getRemoteEndpoint(spanData));
 
             TraceDetails traceDetails = Store.get(traceId);
             traceDetails.setSpanDetails(spanData.getSpanId(), spanDetails);
-
-            redisHandler.putTraceData(traceId, traceDetails);
         }
-
         return Store;
     }
     @Override

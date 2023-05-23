@@ -7,9 +7,9 @@ import java.util.Map;
 public class TraceDetails implements Serializable {
     private Map<String, SpanDetails> SpanDetailsMap = new HashMap<>();
 
-    public Map<String, SpanDetails> setSpanDetails(String spanId, SpanDetails spanDetails) {
+    public TraceDetails setSpanDetails(String spanId, SpanDetails spanDetails) {
         SpanDetailsMap.put(spanId, spanDetails);
-        return SpanDetailsMap;
+        return this;
     }
 
     public SpanDetails getSpanDetails(String spanId) {

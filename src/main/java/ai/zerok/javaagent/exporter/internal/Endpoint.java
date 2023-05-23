@@ -17,6 +17,7 @@ public class Endpoint implements Serializable{
     public String toString() {
         return "Endpoint{"
                 + "Name=" + name + ", "
+                + "protocol=" + protocol + ", "
                 + "host=" + host + ", "
                 + "ipv4=" + ipv4 + ", "
                 + "ipv6=" + ipv6 + ", "

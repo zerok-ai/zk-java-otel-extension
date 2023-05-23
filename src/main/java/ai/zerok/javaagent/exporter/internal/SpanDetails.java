@@ -1,13 +1,15 @@
 package ai.zerok.javaagent.exporter.internal;
 
-public class SpanDetails {
-    private String spanKind;
-    private String parentSpanID;
-    private Endpoint remoteEndpoint;
-    private Endpoint localEndpoint;
+import io.opentelemetry.api.trace.SpanKind;
 
-    public String getSpanKind() { return spanKind; }
-    public void setSpanKind(String value) { this.spanKind = value; }
+public class SpanDetails {
+    private SpanKind spanKind;
+    private String parentSpanID;
+    private Endpoint remoteEndpoint; // Remote endpoint for the current span. i.e. destination of the request.
+    private Endpoint localEndpoint; // Local endpoint where span is created. i.e. source of the request.
+
+    public SpanKind getSpanKind() { return spanKind; }
+    public void setSpanKind(SpanKind value) { this.spanKind = value; }
 
     public String getParentSpanID() { return parentSpanID; }
     public void setParentSpanID(String value) { this.parentSpanID = value; }

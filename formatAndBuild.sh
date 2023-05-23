@@ -1,2 +1,1 @@
-./gradlew :spotlessApply
-./gradlew build
+./gradlew clean build fatjar
