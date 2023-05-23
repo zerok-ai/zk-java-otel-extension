@@ -58,6 +58,15 @@ public class RedisHandler {
         }
     }
 
+    public void forceSync() {
+        pipeline.sync();
+    }
+
+    public void shutdown() {
+        pipeline.sync();
+        jedis.shutdown();
+    }
+
     public TraceDetails getTraceData(String traceId) {
         Map<String, String> spanJsonMap = jedis.hgetAll(traceId);
         Map<String, SpanDetails> spansHashMap = new HashMap<>();

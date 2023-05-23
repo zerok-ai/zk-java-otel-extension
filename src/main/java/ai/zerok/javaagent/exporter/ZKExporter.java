@@ -16,17 +16,18 @@ import static ai.zerok.javaagent.exporter.ZKSpanUtils.printSpan;
 public class ZKExporter implements SpanExporter {
 
     RedisHandler redisHandler = new RedisHandler();
+    Map<String, TraceDetails> traceStore = new HashMap<>();
 
     @Override
     public CompletableResultCode export(Collection<SpanData> spanDataList) {
         CompletableResultCode result = new CompletableResultCode();
         try {
             // export logic for processing the span data.
-            Map<String, TraceDetails> Store = generateStoreForSpanData(spanDataList);
+            traceStore = generateStoreForSpanData(spanDataList);
 
             // queuing the telemetry data to sync with redis
-            for (String traceId : Store.keySet()) {
-                TraceDetails traceDetails = Store.get(traceId);
+            for (String traceId : traceStore.keySet()) {
+                TraceDetails traceDetails = traceStore.get(traceId);
                 redisHandler.putTraceData(traceId, traceDetails);
             }
         } catch (Exception e) {
@@ -38,13 +39,11 @@ public class ZKExporter implements SpanExporter {
     }
 
     private Map<String, TraceDetails> generateStoreForSpanData(Collection<SpanData> spanDataList) {
-        Map<String, TraceDetails> Store = new HashMap<>();
-
         for (SpanData spanData : spanDataList) {
             printSpan(spanData);
             String traceId = spanData.getTraceId();
-            if (!Store.containsKey(traceId)) {
-                Store.put(traceId, new TraceDetails());
+            if (!traceStore.containsKey(traceId)) {
+                traceStore.put(traceId, new TraceDetails());
             }
 
             SpanDetails spanDetails = new SpanDetails();
@@ -53,26 +52,37 @@ public class ZKExporter implements SpanExporter {
             spanDetails.setLocalEndpoint(ZKSpanUtils.getLocalEndpoint(spanData));
             spanDetails.setRemoteEndpoint(ZKSpanUtils.getRemoteEndpoint(spanData));
 
-            TraceDetails traceDetails = Store.get(traceId);
+            TraceDetails traceDetails = traceStore.get(traceId);
             traceDetails.setSpanDetails(spanData.getSpanId(), spanDetails);
         }
-        return Store;
+        return traceStore;
     }
     @Override
     public CompletableResultCode flush() {
-        // Implement flushing logic if required by your exporter
-        // This method is called when a flush is triggered
-        // Return the appropriate ResultCode indicating success or failure
-
+        // Flush method is called on application exit, manually or on a scheduled interval
+        // to ensure that any buffered telemetry data is sent immediately.
         CompletableResultCode result = new CompletableResultCode();
+
+        try {
+            // queuing the telemetry data to sync with redis
+            for (String traceId : traceStore.keySet()) {
+                TraceDetails traceDetails = traceStore.get(traceId);
+                redisHandler.putTraceData(traceId, traceDetails);
+            }
+            redisHandler.forceSync();
+        } catch (Exception e) {
+            result.fail();
+            return result;
+        }
+
         result.succeed();
         return result;
     }
 
     @Override
     public CompletableResultCode shutdown() {
-        // Implement any cleanup logic when the exporter is shut down
-        // Close connections, release resources, etc.
+        // Cleanup logic when the exporter is shut down
+        redisHandler.shutdown();
 
         CompletableResultCode result = new CompletableResultCode();
         result.succeed();
