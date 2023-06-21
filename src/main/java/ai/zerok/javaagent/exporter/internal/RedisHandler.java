@@ -15,7 +15,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class RedisHandler {
-    String redisHostName = "redis.redis.svc.cluster.local";
+    String redisHostName = "redis.zk-client.svc.cluster.local";
     int redisPort = 6379;
     int redisDB = 3;
     int ttlInSeconds = 15 * 60; // Set the TTL to 15 mins
