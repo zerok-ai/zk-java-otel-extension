@@ -10,10 +10,10 @@ plugins {
   into a single jar.
   See https://imperceptiblethoughts.com/shadow/ for more details about Shadow plugin.
    */
-  id "com.github.johnrengelman.shadow" version "7.1.2"
+  id "com.github.johnrengelman.shadow" version "8.1.1"
 
-  id "io.opentelemetry.instrumentation.muzzle-generation" version "1.21.0-alpha-SNAPSHOT"
-  id "io.opentelemetry.instrumentation.muzzle-check" version "1.21.0-alpha-SNAPSHOT"
+  id "io.opentelemetry.instrumentation.muzzle-generation" version "1.28.0-alpha-SNAPSHOT"
+  id "io.opentelemetry.instrumentation.muzzle-check" version "1.28.0-alpha-SNAPSHOT"
 }
 
 group 'ai.zerok'
@@ -21,15 +21,18 @@ version '1.0'
 
 ext {
   versions = [
-    // these lines are managed by .github/scripts/update-version.sh
-    opentelemetryJavaagent     : "1.21.0-SNAPSHOT",
-    opentelemetryJavaagentAlpha: "1.21.0-alpha-SNAPSHOT",
+          // this line is managed by .github/scripts/update-sdk-version.sh
+          opentelemetrySdk           : "1.27.0",
 
-    junit                      : "5.9.1"
+          // these lines are managed by .github/scripts/update-version.sh
+          opentelemetryJavaagent     : "1.28.0-SNAPSHOT",
+          opentelemetryJavaagentAlpha: "1.28.0-alpha-SNAPSHOT",
+
+          junit                      : "5.9.3"
   ]
 
   deps = [
-    autoservice: dependencies.create(group: 'com.google.auto.service', name: 'auto-service', version: '1.0.1')
+          autoservice: dependencies.create(group: 'com.google.auto.service', name: 'auto-service', version: '1.1.1')
   ]
 }
 
@@ -50,13 +53,12 @@ configurations {
   otel
 }
 
-
 dependencies {
-  api(platform("io.opentelemetry:opentelemetry-bom:1.21.0"))
+  implementation(platform("io.opentelemetry:opentelemetry-bom:${versions.opentelemetrySdk}"))
 
   // these serve as a test of the instrumentation boms
-  api(platform("io.opentelemetry.instrumentation:opentelemetry-instrumentation-bom:${versions.opentelemetryJavaagent}"))
-  api(platform("io.opentelemetry.instrumentation:opentelemetry-instrumentation-bom-alpha:${versions.opentelemetryJavaagentAlpha}"))
+  implementation(platform("io.opentelemetry.instrumentation:opentelemetry-instrumentation-bom:${versions.opentelemetryJavaagent}"))
+  implementation(platform("io.opentelemetry.instrumentation:opentelemetry-instrumentation-bom-alpha:${versions.opentelemetryJavaagentAlpha}"))
 
   implementation 'com.google.code.gson:gson:2.10.1'
   implementation 'redis.clients:jedis:4.4.0-m2'
@@ -84,7 +86,6 @@ dependencies {
   compileOnly group: 'javax.servlet', name: 'javax.servlet-api', version: '3.0.1'
   compileOnly group: 'org.hibernate', name: 'hibernate-core', version: '3.5.5-Final'
 
-
   /*
   This dependency is required for DemoSpanProcessor both during compile and runtime.
   Only dependencies added to `implementation` configuration will be picked up by Shadow plugin
@@ -92,22 +93,21 @@ dependencies {
    */
   implementation 'org.apache.commons:commons-lang3:3.12.0'
   implementation 'io.opentelemetry.instrumentation:opentelemetry-jdbc:1.21.0-alpha'
-  //Thanks for using https://jar-download.com
 
   //Jakarta Servlet API to support springboot http instrumentation
   implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
 
   //All dependencies below are only for tests
-  testImplementation("org.testcontainers:testcontainers:1.17.6")
-  testImplementation("com.fasterxml.jackson.core:jackson-databind:2.14.1")
-  testImplementation("com.google.protobuf:protobuf-java-util:3.21.11")
-  testImplementation("com.squareup.okhttp3:okhttp:4.10.0")
+  testImplementation("org.testcontainers:testcontainers:1.18.3")
+  testImplementation("com.fasterxml.jackson.core:jackson-databind:2.15.2")
+  testImplementation("com.google.protobuf:protobuf-java-util:3.23.3")
+  testImplementation("com.squareup.okhttp3:okhttp:4.11.0")
   testImplementation("io.opentelemetry:opentelemetry-api")
-  testImplementation("io.opentelemetry.proto:opentelemetry-proto:0.19.0-alpha")
+  testImplementation("io.opentelemetry.proto:opentelemetry-proto:0.20.0-alpha")
 
   testImplementation("org.junit.jupiter:junit-jupiter-api:${versions.junit}")
   testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${versions.junit}")
-  testRuntimeOnly("ch.qos.logback:logback-classic:1.4.5")
+  testRuntimeOnly("ch.qos.logback:logback-classic:1.4.8")
 
   //Otel Java instrumentation that we use and extend during integration tests
   otel("io.opentelemetry.javaagent:opentelemetry-javaagent:${versions.opentelemetryJavaagent}")
@@ -117,6 +117,45 @@ dependencies {
   add("muzzleBootstrap", "io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations-support:${versions.opentelemetryJavaagentAlpha}")
   add("muzzleTooling", "io.opentelemetry.javaagent:opentelemetry-javaagent-extension-api:${versions.opentelemetryJavaagentAlpha}")
   add("muzzleTooling", "io.opentelemetry.javaagent:opentelemetry-javaagent-tooling:${versions.opentelemetryJavaagentAlpha}")
+}
+
+//Produces a copy of upstream javaagent with this extension jar included inside it
+//The location of extension directory inside agent jar is hard-coded in the agent source code
+task extendedAgent(type: Jar) {
+  dependsOn(configurations.otel)
+  archiveFileName = "opentelemetry-javaagent.jar"
+  from zipTree(configurations.otel.singleFile)
+  from(tasks.shadowJar.archiveFile) {
+    into "extensions"
+  }
+
+  //Preserve MANIFEST.MF file from the upstream javaagent
+  doFirst {
+    manifest.from(
+            zipTree(configurations.otel.singleFile).matching {
+              include 'META-INF/MANIFEST.MF'
+            }.singleFile
+    )
+  }
+}
+
+tasks {
+  test {
+    useJUnitPlatform()
+
+    inputs.files(layout.files(tasks.shadowJar))
+    inputs.files(layout.files(tasks.extendedAgent))
+
+    systemProperty 'io.opentelemetry.smoketest.agentPath', configurations.otel.singleFile.absolutePath
+    systemProperty 'io.opentelemetry.smoketest.extendedAgentPath', tasks.extendedAgent.archiveFile.get().asFile.absolutePath
+    systemProperty 'io.opentelemetry.smoketest.extensionPath', tasks.shadowJar.archiveFile.get().asFile.absolutePath
+  }
+
+  compileJava {
+    options.release.set(11)
+  }
+
+  assemble.dependsOn(shadowJar)
 }
 
 task fatJar(type: Jar) {
@@ -145,5 +184,6 @@ muzzle {
     assertInverse.set(true)
   }
 }
+
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
