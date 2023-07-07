@@ -37,7 +37,12 @@ public class CommentBuilder {
 //    String comment =
 //        addComment(
 //            addSpanId(addTraceId(addQueryIdentifier(queryIdentifier), spanContext), spanContext));
-    sql = comment + sql;
+    // Comment is getting added multiple times with the same trace and span id
+    // This check should fix it for now:
+    if(!sql.contains(comment)){
+      sql = comment + sql;
+    }
+//    sql = comment + sql;
     System.out.println(sql);
     return sql;
   }
