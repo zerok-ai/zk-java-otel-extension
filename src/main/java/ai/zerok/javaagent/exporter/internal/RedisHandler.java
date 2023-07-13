@@ -15,7 +15,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class RedisHandler {
-    String redisHostName = "redis.zk-client.svc.cluster.local";
+    String redisHostName = "redis-master.zk-client.svc.cluster.local";
     int redisPort = 6379;
     int redisDB = 3;
     int ttlInSeconds = 15 * 60; // Set the TTL to 15 mins
@@ -31,6 +31,10 @@ public class RedisHandler {
     Timer timer = new Timer();
 
     public RedisHandler() {
+        initializeRedisConn();
+    }
+
+    private void initializeRedisConn() {
         jedis = new Jedis(redisHostName, redisPort);
         pipeline = jedis.pipelined();
         count = 0;
@@ -38,6 +42,7 @@ public class RedisHandler {
         jedis.select(redisDB);
         timer.schedule(syncTask, 0, timerSyncDuration);
     }
+
     TimerTask syncTask = new TimerTask() {
         @Override
         public void run() {
@@ -60,6 +65,12 @@ public class RedisHandler {
     }
 
     public void putTraceData(String traceId, TraceDetails traceDetails) {
+        // Reconnect redis if connection is broken
+        if (!jedis.isConnected()) {
+            jedis.disconnect();
+            initializeRedisConn();
+        }
+
         System.out.println(gson.toJson(traceDetails));
         Map<String, SpanDetails> spansHashMap = traceDetails.getSpanDetailsMap();
         Map<String, String> spanJsonMap = new HashMap<>();
@@ -82,7 +93,7 @@ public class RedisHandler {
 
     public void shutdown() {
         pipeline.sync();
-        jedis.shutdown();
+        jedis.disconnect();
     }
 
     public TraceDetails getTraceData(String traceId) {

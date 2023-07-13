@@ -66,14 +66,6 @@ public final class ZKSpanUtils {
             endpoint.setIpv4(attributes.get(NET_SOCK_PEER_ADDR));
             endpoint.setIpv6(attributes.get(NET_SOCK_PEER_ADDR));
 
-            if(attributes.get(DB_SYSTEM) != null) {
-                endpoint.setProtocol(attributes.get(DB_SYSTEM));
-            } else if(attributes.get(HTTP_METHOD) != null) {
-                endpoint.setProtocol(attributes.get(NET_APP_PROTOCOL_NAME) + attributes.get(NET_APP_PROTOCOL_VERSION));
-            } else {
-                endpoint.setProtocol(attributes.get(NET_APP_PROTOCOL_NAME));
-            }
-
             return endpoint;
         }
         return null;

@@ -7,7 +7,6 @@ import java.io.Serializable;
 
 public class Endpoint implements Serializable{
     private String name;
-    private String protocol;
     private String host;
     private String ipv6;
     private Long port;
@@ -17,7 +16,6 @@ public class Endpoint implements Serializable{
     public String toString() {
         return "Endpoint{"
                 + "Name=" + name + ", "
-                + "protocol=" + protocol + ", "
                 + "host=" + host + ", "
                 + "ipv4=" + ipv4 + ", "
                 + "ipv6=" + ipv6 + ", "
@@ -27,9 +25,6 @@ public class Endpoint implements Serializable{
 
     public String getName() { return name; }
     public void setName(String value) { this.name = value; }
-
-    public String getProtocol() { return protocol; }
-    public void setProtocol(String value) { this.protocol = value; }
 
     public String getHost() { return host; }
     public void setHost(String value) { this.host = value; }

@@ -3,6 +3,8 @@ package ai.zerok.javaagent.exporter;
 import ai.zerok.javaagent.exporter.internal.RedisHandler;
 import ai.zerok.javaagent.exporter.internal.SpanDetails;
 import ai.zerok.javaagent.exporter.internal.TraceDetails;
+import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.sdk.common.CompletableResultCode;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
 import io.opentelemetry.sdk.trace.data.SpanData;
@@ -12,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static ai.zerok.javaagent.exporter.ZKSpanUtils.printSpan;
+import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.*;
 
 public class ZKExporter implements SpanExporter {
 
@@ -30,6 +33,8 @@ public class ZKExporter implements SpanExporter {
                 TraceDetails traceDetails = traceStore.get(traceId);
                 redisHandler.putTraceData(traceId, traceDetails);
             }
+
+            traceStore.clear();
         } catch (Exception e) {
             result.fail();
             return result;
@@ -40,7 +45,6 @@ public class ZKExporter implements SpanExporter {
 
     private Map<String, TraceDetails> generateStoreForSpanData(Collection<SpanData> spanDataList) {
         for (SpanData spanData : spanDataList) {
-            printSpan(spanData);
             String traceId = spanData.getTraceId();
             if (!traceStore.containsKey(traceId)) {
                 traceStore.put(traceId, new TraceDetails());
@@ -51,6 +55,16 @@ public class ZKExporter implements SpanExporter {
             spanDetails.setSpanKind(spanData.getKind());
             spanDetails.setLocalEndpoint(ZKSpanUtils.getLocalEndpoint(spanData));
             spanDetails.setRemoteEndpoint(ZKSpanUtils.getRemoteEndpoint(spanData));
+
+            Attributes attributes = spanData.getAttributes();
+            // System.out.println(attributes);
+            if(attributes.get(DB_SYSTEM) != null) {
+                spanDetails.setProtocol(attributes.get(DB_SYSTEM));
+            } else if(attributes.get(HTTP_METHOD) != null) {
+                spanDetails.setProtocol(attributes.get(NET_PROTOCOL_NAME));
+            } else {
+                spanDetails.setProtocol(attributes.get(NET_PROTOCOL_NAME));
+            }
 
             TraceDetails traceDetails = traceStore.get(traceId);
             traceDetails.setSpanDetails(spanData.getSpanId(), spanDetails);
