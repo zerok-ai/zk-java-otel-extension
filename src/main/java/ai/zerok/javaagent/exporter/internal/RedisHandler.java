@@ -3,7 +3,7 @@ package ai.zerok.javaagent.exporter.internal;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import java.util.Map;
+qimport java.util.Map;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Pipeline;
@@ -11,8 +11,6 @@ import redis.clients.jedis.Pipeline;
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 public class RedisHandler {
     String redisHostName = "redis-master.zk-client.svc.cluster.local";
@@ -53,20 +51,26 @@ public class RedisHandler {
     };
 
     private void syncPipeline() {
-        if (count >= batchSize || System.currentTimeMillis() - startTime >= durationMillis) {
-            // Execute the pipeline
-            pipeline.sync();
-            System.out.println("Pipeline synchronized on batchsize/duration");
+        try {
+            if (count >= batchSize || System.currentTimeMillis() - startTime >= durationMillis) {
+                // Execute the pipeline
+                pipeline.sync();
+                System.out.println("Pipeline synchronized on batchsize/duration");
 
-            // Reset the counter and update the start time
-            count = 0;
-            startTime = System.currentTimeMillis();
+                // Reset the counter and update the start time
+                count = 0;
+                startTime = System.currentTimeMillis();
+            }
+        } catch (Exception e) {
+            System.out.println("Exception occurred while syncing pipeline." + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     public void putTraceData(String traceId, TraceDetails traceDetails) {
         // Reconnect redis if connection is broken
-        if (!jedis.isConnected()) {
+        if (!jedis.isConnected() || jedis.isBroken()) {
+            System.out.println("Reconnecting Redis");
             jedis.disconnect();
             initializeRedisConn();
         }
