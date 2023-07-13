@@ -15,7 +15,7 @@ import io.opentelemetry.javaagent.bootstrap.Java8BytecodeBridge;
 
 public final class Utils {
 
-    public static final String operatorUrl = "http://zerok-operator-service.zerok-operator-system.svc.cluster.local:8127/exception";
+    public static final String operatorUrl = "http://zk-operator.zk-client.svc.cluster.local/exception";
     private static final String traceParentKey = "traceparent";
     private static final String traceStateKey = "tracestate";
 
