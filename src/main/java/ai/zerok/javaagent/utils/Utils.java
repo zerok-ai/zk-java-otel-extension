@@ -1,7 +1,5 @@
 package ai.zerok.javaagent.utils;
 
-import ai.zerok.javaagent.exporter.ZKExporter;
-import ai.zerok.javaagent.exporter.internal.Endpoint;
 import ai.zerok.javaagent.exporter.internal.RedisHandler;
 import ai.zerok.javaagent.exporter.internal.SpanDetails;
 import ai.zerok.javaagent.exporter.internal.TraceDetails;
