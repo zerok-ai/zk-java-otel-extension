@@ -8,7 +8,8 @@ public class SpanDetails {
     private Endpoint remoteEndpoint; // Remote endpoint for the current span. i.e. destination of the request.
     private Endpoint localEndpoint; // Local endpoint where span is created. i.e. source of the request.
     private String protocol;
-
+    private String endpoint;
+    private String attributes;
     public SpanKind getSpanKind() { return spanKind; }
     public void setSpanKind(SpanKind value) { this.spanKind = value; }
 
@@ -24,6 +25,20 @@ public class SpanDetails {
     public String getProtocol() { return protocol; }
     public void setProtocol(String value) { this.protocol = value; }
 
+    public String getEndpoint() {
+        return endpoint;
+    }
+    public void setEndpoint(String endpoint) {
+        this.endpoint = endpoint;
+    }
+
+    public String getAttributes() {
+        return attributes;
+    }
+    public void setAttributes(String attributes) {
+        this.attributes = attributes;
+    }
+
     @Override
     public String toString() {
         return "SpanDetails {"
@@ -31,7 +46,9 @@ public class SpanDetails {
             + "protocol=" + protocol + ", "
             + "parentSpanID=" + parentSpanID + ", "
             + "remoteEndpoint=" + remoteEndpoint.toString() + ", "
-            + "localEndpoint=" + localEndpoint.toString()
+            + "localEndpoint=" + localEndpoint.toString() + ", "
+            + "endpoint=" + endpoint + ", "
+            + "attributes=" + attributes
             + "}";
     }
 

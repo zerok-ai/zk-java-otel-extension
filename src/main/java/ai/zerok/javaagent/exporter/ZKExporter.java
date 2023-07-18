@@ -57,11 +57,23 @@ public class ZKExporter implements SpanExporter {
             spanDetails.setRemoteEndpoint(ZKSpanUtils.getRemoteEndpoint(spanData));
 
             Attributes attributes = spanData.getAttributes();
-            // System.out.println(attributes);
+            spanDetails.setAttributes(attributes.asMap().toString());
+
             if(attributes.get(DB_SYSTEM) != null) {
                 spanDetails.setProtocol(attributes.get(DB_SYSTEM));
             } else if(attributes.get(HTTP_METHOD) != null) {
                 spanDetails.setProtocol(attributes.get(NET_PROTOCOL_NAME));
+                String httpRoute = attributes.get(HTTP_ROUTE);
+                String netPeerName = attributes.get(NET_PEER_NAME);
+                String httpURL = attributes.get(HTTP_URL);
+                if(httpRoute == null || httpRoute.isEmpty()) {
+                    if (netPeerName != null && !netPeerName.isEmpty() && httpURL != null && !httpURL.isEmpty()) {
+                        httpRoute = httpURL.substring(httpURL.indexOf(netPeerName) + netPeerName.length());
+                    } else {
+                        httpRoute = "";
+                    }
+                }
+                spanDetails.setEndpoint("[" + attributes.get(HTTP_METHOD) + "]" + httpRoute );
             } else {
                 spanDetails.setProtocol(attributes.get(NET_PROTOCOL_NAME));
             }

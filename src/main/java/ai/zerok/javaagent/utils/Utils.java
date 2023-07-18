@@ -1,5 +1,10 @@
 package ai.zerok.javaagent.utils;
 
+import ai.zerok.javaagent.exporter.ZKExporter;
+import ai.zerok.javaagent.exporter.internal.Endpoint;
+import ai.zerok.javaagent.exporter.internal.RedisHandler;
+import ai.zerok.javaagent.exporter.internal.SpanDetails;
+import ai.zerok.javaagent.exporter.internal.TraceDetails;
 import io.opentelemetry.api.trace.SpanContext;
 
 import java.io.OutputStream;
@@ -11,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.javaagent.bootstrap.Java8BytecodeBridge;
 
 public final class Utils {
@@ -39,21 +45,18 @@ public final class Utils {
     }
 
     public static int sendExceptionDataToOperator(Throwable throwable, Span span) {
+        System.out.println("In sendExceptionDataToOperator");
         try {
             String traceId = span.getSpanContext().getTraceId();
-            String spanId = span.getSpanContext().getSpanId();
+            String parentSpanId = span.getSpanContext().getSpanId();
+
+            System.out.println("Preparing to send Exception for trace ID:"+traceId+"& SpanID:"+parentSpanId+".");
+
             URL url = new URL(operatorUrl);
             URLConnection con = url.openConnection();
             HttpURLConnection httpURLConnection = (HttpURLConnection)con;
             httpURLConnection.setRequestMethod("POST");
             httpURLConnection.setRequestProperty("Content-type", "application/json");
-            String traceParent = getTraceParent(traceId, spanId);
-            httpURLConnection.setRequestProperty(traceParentKey,traceParent);
-            String parentSpanId = Utils.getParentSpandId(span);
-            String traceState = getTraceState(parentSpanId);
-            if (traceState != null ){
-                httpURLConnection.setRequestProperty(traceStateKey,traceState);
-            }
 
             httpURLConnection.setDoOutput(true);
 
@@ -64,12 +67,39 @@ public final class Utils {
 
             int responseCode = httpURLConnection.getResponseCode();
             System.out.println("Response Code " + responseCode);
-            return responseCode;
 
+            if (responseCode != HttpURLConnection.HTTP_OK) {
+                System.out.println("Failed to upload exception data. Got " + responseCode );
+                return responseCode;
+            }
+
+            /* Upload data to redis. */
+            String traceParent = httpURLConnection.getRequestProperty(Utils.getTraceParentKey());
+            System.out.println("traceparent : " + traceParent);
+
+            if(traceParent == null || traceParent.isEmpty()) {
+                System.out.println("missing traceparent " + traceParent);
+                return responseCode;
+            }
+
+            String spanId = TraceUtils.extractSpanId(traceParent);
+            SpanDetails exceptionSpanDetails = new SpanDetails();
+            exceptionSpanDetails.setSpanKind(SpanKind.CLIENT);
+            exceptionSpanDetails.setParentSpanID(parentSpanId);
+            exceptionSpanDetails.setProtocol("exception");
+
+            TraceDetails exceptionTraceDetails = new TraceDetails();
+            exceptionTraceDetails.setSpanDetails(spanId, exceptionSpanDetails);
+
+            RedisHandler redisHandler = new RedisHandler();
+            redisHandler.putTraceData(traceId, exceptionTraceDetails);
+            redisHandler.forceSync();
+
+            return responseCode;
         }
         catch (Throwable e) {
             System.out.println("Exception caught while sending exception data to operator."+e.getMessage());
-            System.out.println(Arrays.toString(e.getStackTrace()));
+            e.getStackTrace();
         }
         return 500;
     }
