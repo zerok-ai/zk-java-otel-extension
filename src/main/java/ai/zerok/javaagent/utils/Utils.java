@@ -74,24 +74,12 @@ public final class Utils {
             /* Upload data to redis. */
             String traceParent = httpURLConnection.getRequestProperty(Utils.getTraceParentKey());
             System.out.println("traceparent : " + traceParent);
-
             if(traceParent == null || traceParent.isEmpty()) {
                 System.out.println("missing traceparent " + traceParent);
                 return responseCode;
             }
 
-            String spanId = TraceUtils.extractSpanId(traceParent);
-            SpanDetails exceptionSpanDetails = new SpanDetails();
-            exceptionSpanDetails.setSpanKind(SpanKind.CLIENT);
-            exceptionSpanDetails.setParentSpanID(parentSpanId);
-            exceptionSpanDetails.setProtocol("exception");
-
-            TraceDetails exceptionTraceDetails = new TraceDetails();
-            exceptionTraceDetails.setSpanDetails(spanId, exceptionSpanDetails);
-
-            RedisHandler redisHandler = new RedisHandler();
-            redisHandler.putTraceData(traceId, exceptionTraceDetails);
-            redisHandler.forceSync();
+            Utils.updateRedisWithExceptionSpan(traceId, parentSpanId, traceParent);
 
             return responseCode;
         }
@@ -100,6 +88,21 @@ public final class Utils {
             e.getStackTrace();
         }
         return 500;
+    }
+
+    private static void updateRedisWithExceptionSpan(String traceId, String parentSpanId, String exceptionTraceParent) {
+        String spanId = Utils.extractSpanId(exceptionTraceParent);
+        SpanDetails exceptionSpanDetails = new SpanDetails();
+        exceptionSpanDetails.setSpanKind(SpanKind.CLIENT);
+        exceptionSpanDetails.setParentSpanID(parentSpanId);
+        exceptionSpanDetails.setProtocol("exception");
+
+        TraceDetails exceptionTraceDetails = new TraceDetails();
+        exceptionTraceDetails.setSpanDetails(spanId, exceptionSpanDetails);
+
+        RedisHandler redisHandler = new RedisHandler();
+        redisHandler.putTraceData(traceId, exceptionTraceDetails);
+        redisHandler.forceSync();
     }
 
     private static String getExceptionPayload(Throwable r) {
@@ -142,4 +145,34 @@ public final class Utils {
         return parentSpanId;
     }
 
+    private static String extractTraceId(String traceparentHeader) {
+        String[] parts = traceparentHeader.split("-");
+        if (parts.length >= 2) {
+            String traceId = parts[1];
+            if (isValidHexadecimal(traceId)) {
+                return traceId;
+            }
+        }
+        return null;
+    }
+
+    private static String extractSpanId(String traceparentHeader) {
+        String[] parts = traceparentHeader.split("-");
+        if (parts.length >= 3) {
+            String spanId = parts[2];
+            if (isValidHexadecimal(spanId)) {
+                return spanId;
+            }
+        }
+        return null;
+    }
+
+    private static boolean isValidHexadecimal(String value) {
+        try {
+            Long.parseLong(value, 16);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
 }
