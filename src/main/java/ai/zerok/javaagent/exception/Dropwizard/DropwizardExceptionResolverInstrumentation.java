@@ -1,6 +1,6 @@
 package ai.zerok.javaagent.exception.Dropwizard;
 
-import ai.zerok.javaagent.utils.Utils;
+import ai.zerok.javaagent.exception.ExceptionInstrumentation;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.javaagent.bootstrap.Java8BytecodeBridge;
 import io.opentelemetry.javaagent.extension.instrumentation.TypeInstrumentation;
@@ -47,7 +47,7 @@ public class DropwizardExceptionResolverInstrumentation implements TypeInstrumen
                 if(arg instanceof Throwable) {
                     Throwable exception = (Throwable) arg;
                     exception = exception.getCause();
-                    int responsecode = Utils.sendExceptionDataToOperator(exception,span);
+                    int responsecode = ExceptionInstrumentation.sendExceptionDataToOperator(exception,span);
                     break;
                 }
             }

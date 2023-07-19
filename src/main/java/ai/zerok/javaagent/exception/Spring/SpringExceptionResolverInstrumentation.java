@@ -1,6 +1,6 @@
 package ai.zerok.javaagent.exception.Spring;
 
-import ai.zerok.javaagent.utils.Utils;
+import ai.zerok.javaagent.exception.ExceptionInstrumentation;
 import io.opentelemetry.javaagent.bootstrap.Java8BytecodeBridge;
 import io.opentelemetry.javaagent.extension.instrumentation.TypeInstrumentation;
 import io.opentelemetry.javaagent.extension.instrumentation.TypeTransformer;
@@ -45,7 +45,7 @@ public class SpringExceptionResolverInstrumentation implements TypeInstrumentati
                 Object arg = args[i];
                 if(arg instanceof Throwable) {
                     Throwable exception = (Throwable) arg;
-                    int responsecode = Utils.sendExceptionDataToOperator(exception,Java8BytecodeBridge.currentSpan());
+                    int responsecode = ExceptionInstrumentation.sendExceptionDataToOperator(exception,Java8BytecodeBridge.currentSpan());
                     break;
                 }
             }

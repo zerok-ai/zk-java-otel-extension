@@ -27,7 +27,8 @@ public final class DropWizardExceptionInstrumentationModule extends Instrumentat
 
     @Override
     public boolean isHelperClass(String className) {
-        return className.equals("ai.zerok.javaagent.utils.Utils");
+        return
+            className.equals("ai.zerok.javaagent.exception.ExceptionInstrumentation") ||
+            className.equals("ai.zerok.javaagent.utils.Utils");
     }
-
 }
