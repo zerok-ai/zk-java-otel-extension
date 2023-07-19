@@ -1,6 +1,7 @@
 package ai.zerok.javaagent.exception.Spring;
 
 import ai.zerok.javaagent.exception.ExceptionInstrumentation;
+import ai.zerok.javaagent.exception.ThreadLocalHelper;
 import io.opentelemetry.javaagent.bootstrap.Java8BytecodeBridge;
 import io.opentelemetry.javaagent.extension.instrumentation.TypeInstrumentation;
 import io.opentelemetry.javaagent.extension.instrumentation.TypeTransformer;
@@ -8,7 +9,6 @@ import net.bytebuddy.asm.Advice;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.implementation.bytecode.assign.Assigner;
 import net.bytebuddy.matcher.ElementMatcher;
-import java.util.Arrays;
 
 import static io.opentelemetry.javaagent.extension.matcher.AgentElementMatchers.extendsClass;
 import static net.bytebuddy.matcher.ElementMatchers.named;
@@ -16,12 +16,10 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 public class SpringExceptionResolverInstrumentation implements TypeInstrumentation {
 
     private final String baseClassName = "org.springframework.web.servlet.handler.AbstractHandlerExceptionResolver";
-
     @Override
     public ElementMatcher<TypeDescription> typeMatcher() {
         return extendsClass(named(baseClassName));
     }
-
 
     public void transform(TypeTransformer transformer) {
         System.out.println("Inside Exception ps- 1.2-spring....");
@@ -45,6 +43,11 @@ public class SpringExceptionResolverInstrumentation implements TypeInstrumentati
                 Object arg = args[i];
                 if(arg instanceof Throwable) {
                     Throwable exception = (Throwable) arg;
+                    int hashCode = exception.hashCode();
+                    if(ThreadLocalHelper.getInstance().contains(hashCode)){
+                        continue;
+                    }
+                    ThreadLocalHelper.getInstance().add(hashCode);
                     int responsecode = ExceptionInstrumentation.sendExceptionDataToOperator(exception,Java8BytecodeBridge.currentSpan());
                     break;
                 }
