@@ -1,5 +1,6 @@
 package ai.zerok.javaagent.exception;
 
+import ai.zerok.javaagent.exporter.internal.Endpoint;
 import ai.zerok.javaagent.exporter.internal.RedisHandler;
 import ai.zerok.javaagent.exporter.internal.SpanDetails;
 import ai.zerok.javaagent.exporter.internal.TraceDetails;
@@ -69,6 +70,8 @@ public class ExceptionInstrumentation {
         exceptionSpanDetails.setSpanKind(SpanKind.CLIENT);
         exceptionSpanDetails.setParentSpanID(parentSpanId);
         exceptionSpanDetails.setProtocol("exception");
+        exceptionSpanDetails.setLocalEndpoint(new Endpoint());
+        exceptionSpanDetails.setRemoteEndpoint(new Endpoint());
 
         TraceDetails exceptionTraceDetails = new TraceDetails();
         exceptionTraceDetails.setSpanDetails(spanId, exceptionSpanDetails);
