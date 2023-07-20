@@ -45,8 +45,8 @@ public class SpanDetails {
             + "spanKind=" + spanKind + ", "
             + "protocol=" + protocol + ", "
             + "parentSpanID=" + parentSpanID + ", "
-            + "remoteEndpoint=" + remoteEndpoint.toString() + ", "
-            + "localEndpoint=" + localEndpoint.toString() + ", "
+            + "remoteEndpoint=" + remoteEndpoint + ", "
+            + "localEndpoint=" + localEndpoint + ", "
             + "endpoint=" + endpoint + ", "
             + "attributes=" + attributes
             + "}";
