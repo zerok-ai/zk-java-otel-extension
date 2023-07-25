@@ -8,8 +8,10 @@ import io.opentelemetry.javaagent.bootstrap.Java8BytecodeBridge;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.logging.Logger;
 
 public class HttpModifier {
+    private static final Logger LOGGER = Utils.getLogger(HttpModifier.class);
 
     private static boolean isHeaderPresent(String key, HttpServletRequest httpServletRequest){
         return CollectionUtils.isKeyPresentIn(httpServletRequest.getHeaderNames(), key);
@@ -42,7 +44,7 @@ public class HttpModifier {
             String parentSpandId = Utils.getParentSpandId(span);
             String traceParent = Utils.getTraceParent(traceId, parentSpandId);
             httpServletResponse.setHeader(Utils.getTraceParentKey(), traceParent);
-            System.out.println("Adding trace headers to response");
+            LOGGER.config("Adding trace headers to response");
         }
         return httpServletResponse;
     }
@@ -73,7 +75,7 @@ public class HttpModifier {
 //            String traceParent = Utils.getTraceParent(traceId, spanId);
 //            httpServletResponse.addHeader(Utils.getTraceParentKey(), traceParent);
 //            httpServletResponse.addHeader(Utils.getTraceStateKey(), traceState);
-//            System.out.println("Adding trace headers");
+//            LOGGER.config("Adding trace headers");
 //        }
 //
 //        return httpServletResponse;

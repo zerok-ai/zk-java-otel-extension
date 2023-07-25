@@ -1,20 +1,22 @@
 package ai.zerok.javaagent.http;
 
-import static io.opentelemetry.javaagent.extension.matcher.AgentElementMatchers.extendsClass;
-import static net.bytebuddy.matcher.ElementMatchers.*;
-
 import ai.zerok.javaagent.utils.Utils;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.javaagent.bootstrap.Java8BytecodeBridge;
 import io.opentelemetry.javaagent.extension.instrumentation.TypeInstrumentation;
 import io.opentelemetry.javaagent.extension.instrumentation.TypeTransformer;
-import java.net.http.HttpRequest;
 import net.bytebuddy.asm.Advice;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 
-public class HttpClientInstrumentation implements TypeInstrumentation {
+import java.net.http.HttpRequest;
+import java.util.logging.Logger;
 
+import static io.opentelemetry.javaagent.extension.matcher.AgentElementMatchers.extendsClass;
+import static net.bytebuddy.matcher.ElementMatchers.*;
+
+public class HttpClientInstrumentation implements TypeInstrumentation {
+    private static final Logger LOGGER = Utils.getLogger(HttpClientInstrumentation.class);
     @Override
     public ElementMatcher<TypeDescription> typeMatcher() {
         return extendsClass(named("java.net.http.HttpClient"));
@@ -22,13 +24,13 @@ public class HttpClientInstrumentation implements TypeInstrumentation {
 
     @Override
     public void transform(TypeTransformer transformer) {
-        System.out.println("Inside ps- 1.2-http client....");
+        LOGGER.config("Inside ps- 1.2-http client....");
 
         transformer.applyAdviceToMethod(
                 isMethod().and(isPublic()).and(namedOneOf("send", "sendAsync")),
                 this.getClass().getName() + "$SendAdvice");
 
-        System.out.println("Inside ps- 1.3-http client....");
+        LOGGER.config("Inside ps- 1.3-http client....");
     }
 
     public static class SendAdvice {

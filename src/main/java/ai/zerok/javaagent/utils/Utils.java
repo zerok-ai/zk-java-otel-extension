@@ -1,28 +1,51 @@
 package ai.zerok.javaagent.utils;
 
-import ai.zerok.javaagent.exporter.internal.RedisHandler;
-import ai.zerok.javaagent.exporter.internal.SpanDetails;
-import ai.zerok.javaagent.exporter.internal.TraceDetails;
-import io.opentelemetry.api.trace.SpanContext;
-
-import java.io.OutputStream;
-import java.lang.reflect.Method;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.HashMap;
 import io.opentelemetry.api.trace.Span;
-import io.opentelemetry.api.trace.SpanKind;
+import io.opentelemetry.api.trace.SpanContext;
 import io.opentelemetry.javaagent.bootstrap.Java8BytecodeBridge;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public final class Utils {
+    private static final Logger LOGGER = getLogger(Utils.class);
+    private static Level LOG_LEVEL = Level.CONFIG;
     private static final String traceParentKey = "traceparent";
     private static final String traceStateKey = "tracestate";
 
     private static final String traceStateZkKey = "zerok";
     private static final String traceStatePrefix = traceStateZkKey + "=";
+
+    private static final Map<String, Logger> classToLogerMap = new HashMap<>();
+
+    public static Logger getLogger(Object obj){
+        if(obj == null){
+            return getLogger(Utils.class);
+        }
+        return getLogger(obj.getClass());
+    }
+
+    public static Logger getLogger(Class cls){
+        return getLogger(cls, LOG_LEVEL);
+    }
+
+    public static Logger getLogger(Class cls, Level logLevel){
+        String className = cls.getName();
+        if(!classToLogerMap.containsKey(className)){
+            Logger logger = Logger.getLogger(className);
+            logger.setLevel(logLevel);
+            classToLogerMap.put(className, logger);
+        }
+        return classToLogerMap.get(className);
+    }
+
+//    public static void setLogLevel(Level level){
+//        LOG_LEVEL = level;
+//    }
 
     public static String getTraceParentKey() {
          return traceParentKey;
@@ -45,7 +68,7 @@ public final class Utils {
         map.put("message",r.getMessage());
         String stackTraceString = Arrays.toString(r.getStackTrace());
         map.put("stacktrace",stackTraceString);
-        System.out.println("json string is "+map);
+        LOGGER.config("json string is "+map);
         return map.toString();
     }
 
@@ -75,7 +98,7 @@ public final class Utils {
             parentSpanId = parentSpan.getSpanId();
         }
         catch (Exception e) {
-            System.out.println("Exception caught while getting parent span id.");
+            LOGGER.severe("Exception caught while getting parent span id.");
         }
         return parentSpanId;
     }

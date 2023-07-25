@@ -126,7 +126,6 @@ public class ZKExporter implements SpanExporter {
     }
 
     public static ZKExporterBuilder builder() {
-        System.out.println("ZeroK Exporter Builder");
         return new ZKExporterBuilder();
     }
 }

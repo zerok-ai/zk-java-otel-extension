@@ -13,16 +13,18 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
+import java.util.logging.Logger;
 
 public class ExceptionInstrumentation {
+    private static final Logger LOGGER = Utils.getLogger(ExceptionInstrumentation.class);
     public static final String operatorUrl = "http://zk-operator.zk-client.svc.cluster.local/exception";
     public static int sendExceptionDataToOperator(Throwable throwable, Span span) {
-        System.out.println("In sendExceptionDataToOperator");
+        LOGGER.config("In sendExceptionDataToOperator");
         try {
             String traceId = span.getSpanContext().getTraceId();
             String parentSpanId = span.getSpanContext().getSpanId();
 
-            System.out.println("Preparing to send Exception for trace ID:"+traceId+"& SpanID:"+parentSpanId+".");
+            LOGGER.config("Preparing to send Exception for trace ID:"+traceId+"& SpanID:"+parentSpanId+".");
 
             URL url = new URL(operatorUrl);
             URLConnection con = url.openConnection();
@@ -38,18 +40,18 @@ public class ExceptionInstrumentation {
             os.write(input, 0, input.length);
 
             int responseCode = httpURLConnection.getResponseCode();
-            System.out.println("Response Code " + responseCode);
+            LOGGER.config("Response Code " + responseCode);
 
             if (responseCode != HttpURLConnection.HTTP_OK) {
-                System.out.println("Failed to upload exception data. Got " + responseCode );
+                LOGGER.severe("Failed to upload exception data. Got " + responseCode );
                 return responseCode;
             }
 
             /* Upload data to redis. */
             String traceParent = httpURLConnection.getRequestProperty(Utils.getTraceParentKey());
-            System.out.println("traceparent : " + traceParent);
+            LOGGER.config("traceparent : " + traceParent);
             if(traceParent == null || traceParent.isEmpty()) {
-                System.out.println("missing traceparent " + traceParent);
+                LOGGER.config("missing traceparent " + traceParent);
                 return responseCode;
             }
 
@@ -58,7 +60,7 @@ public class ExceptionInstrumentation {
             return responseCode;
         }
         catch (Throwable e) {
-            System.out.println("Exception caught while sending exception data to operator."+e.getMessage());
+            LOGGER.severe("Exception caught while sending exception data to operator."+e.getMessage());
             e.getStackTrace();
         }
         return 500;

@@ -1,18 +1,21 @@
 package ai.zerok.javaagent.exporter.internal;
 
+import ai.zerok.javaagent.utils.Utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
-import java.util.Map;
-
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Pipeline;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.Logger;
 
 public class RedisHandler {
+    private static final Logger LOGGER = Utils.getLogger(RedisHandler.class);
+//    String redisHostName = "localhost";
+//    int redisPort = 6371;
     String redisHostName = "redis-master.zk-client.svc.cluster.local";
     int redisPort = 6379;
     int redisDB = 3;
@@ -45,7 +48,7 @@ public class RedisHandler {
         @Override
         public void run() {
             // This happens only if the data volume does not exceed the batchsize or a long duration has elapsed.
-            System.out.println("Pipeline synchronized on timer");
+            LOGGER.config("Pipeline synchronized on timer");
             syncPipeline();
         }
     };
@@ -55,14 +58,14 @@ public class RedisHandler {
             if (count >= batchSize || System.currentTimeMillis() - startTime >= durationMillis) {
                 // Execute the pipeline
                 pipeline.sync();
-                System.out.println("Pipeline synchronized on batchsize/duration");
+                LOGGER.config("Pipeline synchronized on batchsize/duration");
 
                 // Reset the counter and update the start time
                 count = 0;
                 startTime = System.currentTimeMillis();
             }
         } catch (Exception e) {
-            System.out.println("Exception occurred while syncing pipeline." + e.getMessage());
+            LOGGER.severe("Exception occurred while syncing pipeline." + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -70,12 +73,12 @@ public class RedisHandler {
     public void putTraceData(String traceId, TraceDetails traceDetails) {
         // Reconnect redis if connection is broken
         if (!jedis.isConnected() || jedis.isBroken()) {
-            System.out.println("Reconnecting Redis");
+            LOGGER.config("Reconnecting Redis");
             jedis.disconnect();
             initializeRedisConn();
         }
 
-        System.out.println(gson.toJson(traceDetails));
+        LOGGER.config(gson.toJson(traceDetails));
         Map<String, SpanDetails> spansHashMap = traceDetails.getSpanDetailsMap();
         Map<String, String> spanJsonMap = new HashMap<>();
 

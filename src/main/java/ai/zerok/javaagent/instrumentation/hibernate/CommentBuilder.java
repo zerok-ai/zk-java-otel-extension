@@ -10,9 +10,10 @@ import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanContext;
 import io.opentelemetry.javaagent.bootstrap.Java8BytecodeBridge;
 
-import java.lang.reflect.Method;
+import java.util.logging.Logger;
 
 public class CommentBuilder {
+  private static final Logger LOGGER = Utils.getLogger(CommentBuilder.class);
 
   private static final String queryIdentifierFormatter = "%s: ";
   private static final String traceIdFormatter = "%s tId:%s ";
@@ -43,7 +44,7 @@ public class CommentBuilder {
       sql = comment + sql;
     }
 //    sql = comment + sql;
-    System.out.println(sql);
+    LOGGER.config(sql);
     return sql;
   }
 

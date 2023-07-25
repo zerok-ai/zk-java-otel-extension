@@ -1,6 +1,7 @@
 package ai.zerok.javaagent.exporter;
 
 import ai.zerok.javaagent.exporter.internal.Endpoint;
+import ai.zerok.javaagent.utils.Utils;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.trace.SpanKind;
@@ -9,17 +10,17 @@ import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.semconv.resource.attributes.ResourceAttributes;
 
 import javax.annotation.Nullable;
-
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.*;
 
 public final class ZKSpanUtils {
-
+    private static final Logger LOGGER = Utils.getLogger(ZKSpanUtils.class);
     static Endpoint getLocalEndpoint(SpanData spanData) {
         Attributes resourceAttributes = spanData.getResource().getAttributes();
         // use the service.name from the Resource, if it's been set.
@@ -72,20 +73,20 @@ public final class ZKSpanUtils {
     }
 
     static void printSpan(SpanData spanData) {
-        System.out.printf("spanId = '%s'\n", spanData.getSpanId());
-        System.out.printf("traceId = '%s'\n", spanData.getTraceId());
-        System.out.printf("parentSpanId = '%s'\n", spanData.getParentSpanId());
-        System.out.printf("spanKind = '%s'\n", String.valueOf(spanData.getKind()));
-        System.out.printf("spanAttributes = '%d'\n", spanData.getTotalAttributeCount());
-        System.out.println("Attributes = ");
+        LOGGER.config("spanId = " + spanData.getSpanId());
+        LOGGER.config("traceId = " + spanData.getTraceId());
+        LOGGER.config("parentSpanId = " + spanData.getParentSpanId());
+        LOGGER.config("spanKind = " + spanData.getKind());
+        LOGGER.config("spanAttributes = " + spanData.getTotalAttributeCount());
+        LOGGER.config("Attributes = ");
         Map<AttributeKey<?>, Object> attributesMap = spanData.getAttributes().asMap();
         for(AttributeKey key: attributesMap.keySet()) {
             Object value = attributesMap.get(key);
-            System.out.printf("\t%s = '%s'\n", key, value.toString());
+            LOGGER.config("\t" + key + " = " + value.toString());
         }
         Endpoint remoteEndpoint = ZKSpanUtils.getRemoteEndpoint(spanData);
-        System.out.printf("Remote = %s\n", remoteEndpoint);
+        LOGGER.config("Remote = " + remoteEndpoint);
         Endpoint localEndpoint = ZKSpanUtils.getLocalEndpoint(spanData);
-        System.out.printf("Local = %s\n", localEndpoint);
+        LOGGER.config("Local = " + localEndpoint);
     }
 }

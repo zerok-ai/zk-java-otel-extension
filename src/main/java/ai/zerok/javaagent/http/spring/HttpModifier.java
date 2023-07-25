@@ -8,7 +8,10 @@ import io.opentelemetry.javaagent.bootstrap.Java8BytecodeBridge;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.util.logging.Logger;
+
 public class HttpModifier {
+    private static final Logger LOGGER = Utils.getLogger(HttpModifier.class);
 
     private static boolean isHeaderPresent(String key, HttpServletRequest httpServletRequest){
         return CollectionUtils.isKeyPresentIn(httpServletRequest.getHeaderNames(), key);
@@ -40,7 +43,7 @@ public class HttpModifier {
             String parentSpandId = Utils.getParentSpandId(span);
             String traceParent = Utils.getTraceParent(traceId, parentSpandId);
             httpServletResponse.setHeader(Utils.getTraceParentKey(), traceParent);
-            System.out.println("Adding trace headers to response");
+            LOGGER.config("Adding trace headers to response");
         }
         return httpServletResponse;
     }
@@ -49,24 +52,24 @@ public class HttpModifier {
 //        boolean isTracestatePresent = isTraceIdentifierPresent(httpServletRequest);
 //
 //        if(false) {
-//            System.out.println("------------------------");
-//            System.out.println("Request URI - " + httpServletRequest.getMethod() + "---" + httpServletRequest.getRequestURI());
+//            LOGGER.config("------------------------");
+//            LOGGER.config("Request URI - " + httpServletRequest.getMethod() + "---" + httpServletRequest.getRequestURI());
 //            Span span1 = Java8BytecodeBridge.currentSpan();
 //            SpanContext spanContext1 = span1.getSpanContext();
 //            String spanId1 = spanContext1.getSpanId();
 //            String parentSpandId1 = Utils.getParentSpandId(span1);
-//            System.out.println("SpanId - " + spanId1);
-//            System.out.println("ParentSpanId - " + parentSpandId1);
-//            System.out.println("-----------REQUEST HEADERS-------------");
-//            System.out.println("tracestate - " + httpServletRequest.getHeader("tracestate"));
-//            System.out.println("traceparent - " + httpServletRequest.getHeader("traceparent"));
-//            System.out.println("-----------RESPONSE HEADERS-------------");
-//            System.out.println("tracestate - " + httpServletResponse.getHeader("tracestate"));
-//            System.out.println("traceparent - " + httpServletResponse.getHeader("traceparent"));
-//            System.out.println("------------------------");
-//            System.out.println("");
-//            System.out.println("");
-//            System.out.println("");
+//            LOGGER.config("SpanId - " + spanId1);
+//            LOGGER.config("ParentSpanId - " + parentSpandId1);
+//            LOGGER.config("-----------REQUEST HEADERS-------------");
+//            LOGGER.config("tracestate - " + httpServletRequest.getHeader("tracestate"));
+//            LOGGER.config("traceparent - " + httpServletRequest.getHeader("traceparent"));
+//            LOGGER.config("-----------RESPONSE HEADERS-------------");
+//            LOGGER.config("tracestate - " + httpServletResponse.getHeader("tracestate"));
+//            LOGGER.config("traceparent - " + httpServletResponse.getHeader("traceparent"));
+//            LOGGER.config("------------------------");
+//            LOGGER.config("");
+//            LOGGER.config("");
+//            LOGGER.config("");
 //        }
 //
 ////        isTracestatePresent = isTracestatePresent || isTraceIdentifierPresent(httpServletResponse);// httpServletResponse.getHeaderNames().contains(Utils.getTraceStateKey());
@@ -81,7 +84,7 @@ public class HttpModifier {
 //            String traceParent = Utils.getTraceParent(traceId, spanId);
 //            httpServletResponse.addHeader(Utils.getTraceParentKey(), traceParent);
 //            httpServletResponse.addHeader(Utils.getTraceStateKey(), traceState);
-//            System.out.println("Adding trace headers");
+//            LOGGER.config("Adding trace headers");
 //        }
 //
 //        return httpServletResponse;
