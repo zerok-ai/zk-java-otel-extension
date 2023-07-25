@@ -73,20 +73,20 @@ public final class ZKSpanUtils {
     }
 
     static void printSpan(SpanData spanData) {
-        LOGGER.config("spanId = " + spanData.getSpanId());
-        LOGGER.config("traceId = " + spanData.getTraceId());
-        LOGGER.config("parentSpanId = " + spanData.getParentSpanId());
-        LOGGER.config("spanKind = " + spanData.getKind());
-        LOGGER.config("spanAttributes = " + spanData.getTotalAttributeCount());
-        LOGGER.config("Attributes = ");
+        LOGGER.fine("spanId = " + spanData.getSpanId());
+        LOGGER.fine("traceId = " + spanData.getTraceId());
+        LOGGER.fine("parentSpanId = " + spanData.getParentSpanId());
+        LOGGER.fine("spanKind = " + spanData.getKind());
+        LOGGER.fine("spanAttributes = " + spanData.getTotalAttributeCount());
+        LOGGER.fine("Attributes = ");
         Map<AttributeKey<?>, Object> attributesMap = spanData.getAttributes().asMap();
         for(AttributeKey key: attributesMap.keySet()) {
             Object value = attributesMap.get(key);
-            LOGGER.config("\t" + key + " = " + value.toString());
+            LOGGER.fine("\t" + key + " = " + value.toString());
         }
         Endpoint remoteEndpoint = ZKSpanUtils.getRemoteEndpoint(spanData);
-        LOGGER.config("Remote = " + remoteEndpoint);
+        LOGGER.fine("Remote = " + remoteEndpoint);
         Endpoint localEndpoint = ZKSpanUtils.getLocalEndpoint(spanData);
-        LOGGER.config("Local = " + localEndpoint);
+        LOGGER.fine("Local = " + localEndpoint);
     }
 }

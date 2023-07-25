@@ -7,14 +7,12 @@ import io.opentelemetry.javaagent.bootstrap.Java8BytecodeBridge;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class Utils {
-    private static final Map<String, Logger> classToLoggerMap = new HashMap<>();
     private static final Logger LOGGER = getLogger(Utils.class);
-    private static Level LOG_LEVEL = Level.CONFIG;
+    private static Level LOG_LEVEL = Level.SEVERE;
     public static final String traceParentKey = "traceparent";
     public static final String traceStateKey = "tracestate";
 
@@ -34,17 +32,10 @@ public final class Utils {
 
     public static Logger getLogger(Class cls, Level logLevel){
         String className = cls.getName();
-        if(!classToLoggerMap.containsKey(className)){
-            Logger logger = Logger.getLogger(className);
-            logger.setLevel(logLevel);
-            classToLoggerMap.put(className, logger);
-        }
-        return classToLoggerMap.get(className);
+        Logger logger = Logger.getLogger(className);
+        logger.setLevel(logLevel);
+        return logger;
     }
-
-//    public static void setLogLevel(Level level){
-//        LOG_LEVEL = level;
-//    }
 
     public static String getTraceParentKey() {
          return traceParentKey;
@@ -67,7 +58,7 @@ public final class Utils {
         map.put("message",r.getMessage());
         String stackTraceString = Arrays.toString(r.getStackTrace());
         map.put("stacktrace",stackTraceString);
-        LOGGER.config("json string is "+map);
+        LOGGER.fine("json string is "+map);
         return map.toString();
     }
 

@@ -25,11 +25,11 @@ public class HttpUrlConnectionInstrumentation implements TypeInstrumentation {
 
     @Override
     public void transform(TypeTransformer transformer) {
-        LOGGER.config("Http instrumentation 1.1");
+        LOGGER.fine("Http instrumentation 1.1");
         transformer.applyAdviceToMethod(
                 isMethod().and(isPublic()).and(namedOneOf("connect", "getOutputStream", "getInputStream")),
                 this.getClass().getName() + "$HttpUrlConnectionAdvice");
-        LOGGER.config("Http instrumentation 1.2");
+        LOGGER.fine("Http instrumentation 1.2");
     }
 
     @SuppressWarnings("unused")
@@ -38,7 +38,7 @@ public class HttpUrlConnectionInstrumentation implements TypeInstrumentation {
         @Advice.OnMethodEnter(suppress = Throwable.class)
         public static void methodEnter(@Advice.This HttpURLConnection connection) {
             CallDepth callDepth = CallDepth.forClass(HttpURLConnection.class);
-            LOGGER.config("Http url connection instrumented." + callDepth.getAndIncrement());
+            LOGGER.fine("Http url connection instrumented." + callDepth.getAndIncrement());
             Span span = Java8BytecodeBridge.currentSpan();
             String parentSpanId = Utils.getParentSpandId(span);
             String traceState = Utils.getTraceState(parentSpanId);

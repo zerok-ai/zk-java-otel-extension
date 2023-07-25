@@ -26,14 +26,14 @@ public class HttpServletInstrumentation implements TypeInstrumentation {
 
 
     public void transform(TypeTransformer transformer) {
-        LOGGER.config("Inside extends jakarta.HttpServlet 1.11....");
+        LOGGER.fine("Inside extends jakarta.HttpServlet 1.11....");
         javax.servlet.http.HttpServletResponse httpServletResponse2 = null;
         transformer.applyAdviceToMethod(
                 named("service")
                         .and(ElementMatchers.isProtected()),
                 ServletContainerServiceAdvice.class.getName());
 
-        LOGGER.config("Inside extends jakarta.HttpServlet 1.22....");
+        LOGGER.fine("Inside extends jakarta.HttpServlet 1.22....");
     }
 
     @SuppressWarnings("unused")
@@ -44,7 +44,7 @@ public class HttpServletInstrumentation implements TypeInstrumentation {
                 @Advice.Argument(value = 0, readOnly = true) HttpServletRequest httpServletRequest,
                 @Advice.Argument(value = 1, readOnly = false) HttpServletResponse httpServletResponse
         ) {
-            LOGGER.config("Inside extends HttpServlet.service method...");
+            LOGGER.fine("Inside extends HttpServlet.service method...");
             httpServletResponse = HttpModifier.addTraceHeaders(httpServletRequest, httpServletResponse);
         }
     }

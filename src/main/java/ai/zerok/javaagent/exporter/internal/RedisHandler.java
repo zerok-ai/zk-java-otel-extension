@@ -48,7 +48,7 @@ public class RedisHandler {
         @Override
         public void run() {
             // This happens only if the data volume does not exceed the batchsize or a long duration has elapsed.
-            LOGGER.config("Pipeline synchronized on timer");
+            LOGGER.fine("Pipeline synchronized on timer");
             syncPipeline();
         }
     };
@@ -58,7 +58,7 @@ public class RedisHandler {
             if (count >= batchSize || System.currentTimeMillis() - startTime >= durationMillis) {
                 // Execute the pipeline
                 pipeline.sync();
-                LOGGER.config("Pipeline synchronized on batchsize/duration");
+                LOGGER.fine("Pipeline synchronized on batchsize/duration");
 
                 // Reset the counter and update the start time
                 count = 0;
@@ -73,12 +73,12 @@ public class RedisHandler {
     public void putTraceData(String traceId, TraceDetails traceDetails) {
         // Reconnect redis if connection is broken
         if (!jedis.isConnected() || jedis.isBroken()) {
-            LOGGER.config("Reconnecting Redis");
+            LOGGER.fine("Reconnecting Redis");
             jedis.disconnect();
             initializeRedisConn();
         }
 
-        LOGGER.config(gson.toJson(traceDetails));
+        LOGGER.fine(gson.toJson(traceDetails));
         Map<String, SpanDetails> spansHashMap = traceDetails.getSpanDetailsMap();
         Map<String, String> spanJsonMap = new HashMap<>();
 

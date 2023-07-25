@@ -24,13 +24,13 @@ public class HttpClientInstrumentation implements TypeInstrumentation {
 
     @Override
     public void transform(TypeTransformer transformer) {
-        LOGGER.config("Inside ps- 1.2-http client....");
+        LOGGER.fine("Inside ps- 1.2-http client....");
 
         transformer.applyAdviceToMethod(
                 isMethod().and(isPublic()).and(namedOneOf("send", "sendAsync")),
                 this.getClass().getName() + "$SendAdvice");
 
-        LOGGER.config("Inside ps- 1.3-http client....");
+        LOGGER.fine("Inside ps- 1.3-http client....");
     }
 
     public static class SendAdvice {

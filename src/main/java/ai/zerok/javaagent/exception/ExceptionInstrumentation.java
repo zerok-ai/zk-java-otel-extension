@@ -20,13 +20,13 @@ public class ExceptionInstrumentation {
     private static final Logger LOGGER = Utils.getLogger(ExceptionInstrumentation.class);
     public static final String operatorUrl = "http://zk-operator.zk-client.svc.cluster.local/exception";
     public static int sendExceptionDataToOperator(Throwable throwable, Span span) {
-        LOGGER.config("In sendExceptionDataToOperator");
+        LOGGER.fine("In sendExceptionDataToOperator");
         try {
             Scope scope = span.makeCurrent();
             String traceId = span.getSpanContext().getTraceId();
             String parentSpanId = span.getSpanContext().getSpanId();
 
-            LOGGER.config("Preparing to send Exception for trace ID:"+traceId+"& SpanID:"+parentSpanId+".");
+            LOGGER.fine("Preparing to send Exception for trace ID:"+traceId+"& SpanID:"+parentSpanId+".");
 
             URL url = new URL(operatorUrl);
             URLConnection con = url.openConnection();
@@ -42,7 +42,7 @@ public class ExceptionInstrumentation {
             os.write(input, 0, input.length);
 
             int responseCode = httpURLConnection.getResponseCode();
-            LOGGER.config("Response Code " + responseCode);
+            LOGGER.fine("Response Code " + responseCode);
 
             if (responseCode != HttpURLConnection.HTTP_OK) {
                 LOGGER.severe("Failed to upload exception data. Got " + responseCode );
@@ -51,9 +51,9 @@ public class ExceptionInstrumentation {
             scope.close();
             /* Upload data to redis. */
             String traceParent = httpURLConnection.getRequestProperty(Utils.getTraceParentKey());
-            LOGGER.config("traceparent : " + traceParent);
+            LOGGER.fine("traceparent : " + traceParent);
             if(traceParent == null || traceParent.isEmpty()) {
-                LOGGER.config("missing traceparent " + traceParent);
+                LOGGER.fine("missing traceparent " + traceParent);
                 return responseCode;
             }
 

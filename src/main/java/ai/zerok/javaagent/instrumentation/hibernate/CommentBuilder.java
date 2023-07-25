@@ -44,7 +44,7 @@ public class CommentBuilder {
       sql = comment + sql;
     }
 //    sql = comment + sql;
-    LOGGER.config(sql);
+    LOGGER.fine(sql);
     return sql;
   }
 

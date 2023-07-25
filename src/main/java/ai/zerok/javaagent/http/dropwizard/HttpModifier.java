@@ -44,7 +44,7 @@ public class HttpModifier {
             String parentSpandId = Utils.getParentSpandId(span);
             String traceParent = Utils.getTraceParent(traceId, parentSpandId);
             httpServletResponse.setHeader(Utils.getTraceParentKey(), traceParent);
-            LOGGER.config("Adding trace headers to response");
+            LOGGER.fine("Adding trace headers to response");
         }
         return httpServletResponse;
     }
@@ -75,7 +75,7 @@ public class HttpModifier {
 //            String traceParent = Utils.getTraceParent(traceId, spanId);
 //            httpServletResponse.addHeader(Utils.getTraceParentKey(), traceParent);
 //            httpServletResponse.addHeader(Utils.getTraceStateKey(), traceState);
-//            LOGGER.config("Adding trace headers");
+//            LOGGER.fine("Adding trace headers");
 //        }
 //
 //        return httpServletResponse;

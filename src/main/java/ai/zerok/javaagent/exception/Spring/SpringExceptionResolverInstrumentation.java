@@ -26,13 +26,13 @@ public class SpringExceptionResolverInstrumentation implements TypeInstrumentati
     }
 
     public void transform(TypeTransformer transformer) {
-        LOGGER.config("Inside Exception ps- 1.2-spring....");
+        LOGGER.fine("Inside Exception ps- 1.2-spring....");
 
         transformer.applyAdviceToMethod(
                 named("doResolveException"),
                 SpringExceptionResolverInstrumentation.class.getName() + "$SprintBootExceptionAdvice");
 
-        LOGGER.config("Inside Exception ps- 1.3-spring....");
+        LOGGER.fine("Inside Exception ps- 1.3-spring....");
     }
 
     @SuppressWarnings("unused")
@@ -42,7 +42,7 @@ public class SpringExceptionResolverInstrumentation implements TypeInstrumentati
         public static void onEnter(
                 @Advice.AllArguments(typing = Assigner.Typing.DYNAMIC) Object[] args
         ) {
-            LOGGER.config("Caught exception in spring handler in agent.");
+            LOGGER.fine("Caught exception in spring handler in agent.");
             for(int i=0;i<args.length;i++) {
                 Object arg = args[i];
                 if(arg instanceof Throwable) {
