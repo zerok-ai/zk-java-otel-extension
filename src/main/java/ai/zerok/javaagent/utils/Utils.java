@@ -14,8 +14,8 @@ import java.util.logging.Logger;
 public final class Utils {
     private static final Logger LOGGER = getLogger(Utils.class);
     private static Level LOG_LEVEL = Level.CONFIG;
-    private static final String traceParentKey = "traceparent";
-    private static final String traceStateKey = "tracestate";
+    public static final String traceParentKey = "traceparent";
+    public static final String traceStateKey = "tracestate";
 
     private static final String traceStateZkKey = "zerok";
     private static final String traceStatePrefix = traceStateZkKey + "=";
@@ -107,9 +107,7 @@ public final class Utils {
         String[] parts = traceparentHeader.split("-");
         if (parts.length >= 2) {
             String traceId = parts[1];
-            if (isValidHexadecimal(traceId)) {
-                return traceId;
-            }
+            return traceId;
         }
         return null;
     }
@@ -118,19 +116,8 @@ public final class Utils {
         String[] parts = traceparentHeader.split("-");
         if (parts.length >= 3) {
             String spanId = parts[2];
-            if (isValidHexadecimal(spanId)) {
-                return spanId;
-            }
+            return spanId;
         }
         return null;
-    }
-
-    private static boolean isValidHexadecimal(String value) {
-        try {
-            Long.parseLong(value, 16);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
     }
 }

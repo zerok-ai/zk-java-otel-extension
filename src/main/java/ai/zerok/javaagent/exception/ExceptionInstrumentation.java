@@ -7,6 +7,7 @@ import ai.zerok.javaagent.exporter.internal.TraceDetails;
 import ai.zerok.javaagent.utils.Utils;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanKind;
+import io.opentelemetry.context.Scope;
 
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -21,6 +22,7 @@ public class ExceptionInstrumentation {
     public static int sendExceptionDataToOperator(Throwable throwable, Span span) {
         LOGGER.config("In sendExceptionDataToOperator");
         try {
+            Scope scope = span.makeCurrent();
             String traceId = span.getSpanContext().getTraceId();
             String parentSpanId = span.getSpanContext().getSpanId();
 
@@ -46,7 +48,7 @@ public class ExceptionInstrumentation {
                 LOGGER.severe("Failed to upload exception data. Got " + responseCode );
                 return responseCode;
             }
-
+            scope.close();
             /* Upload data to redis. */
             String traceParent = httpURLConnection.getRequestProperty(Utils.getTraceParentKey());
             LOGGER.config("traceparent : " + traceParent);
