@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class Utils {
+    private static final Map<String, Logger> classToLoggerMap = new HashMap<>();
     private static final Logger LOGGER = getLogger(Utils.class);
     private static Level LOG_LEVEL = Level.CONFIG;
     public static final String traceParentKey = "traceparent";
@@ -19,8 +20,6 @@ public final class Utils {
 
     private static final String traceStateZkKey = "zerok";
     private static final String traceStatePrefix = traceStateZkKey + "=";
-
-    private static final Map<String, Logger> classToLogerMap = new HashMap<>();
 
     public static Logger getLogger(Object obj){
         if(obj == null){
@@ -35,12 +34,12 @@ public final class Utils {
 
     public static Logger getLogger(Class cls, Level logLevel){
         String className = cls.getName();
-        if(!classToLogerMap.containsKey(className)){
+        if(!classToLoggerMap.containsKey(className)){
             Logger logger = Logger.getLogger(className);
             logger.setLevel(logLevel);
-            classToLogerMap.put(className, logger);
+            classToLoggerMap.put(className, logger);
         }
-        return classToLogerMap.get(className);
+        return classToLoggerMap.get(className);
     }
 
 //    public static void setLogLevel(Level level){
