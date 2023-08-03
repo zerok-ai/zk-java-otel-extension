@@ -1,6 +1,5 @@
 package ai.zerok.javaagent.exception.Dropwizard;
 
-import ai.zerok.javaagent.exception.Dropwizard.DropwizardExceptionResolverInstrumentation;
 import com.google.auto.service.AutoService;
 import io.opentelemetry.javaagent.extension.instrumentation.InstrumentationModule;
 import io.opentelemetry.javaagent.extension.instrumentation.TypeInstrumentation;
