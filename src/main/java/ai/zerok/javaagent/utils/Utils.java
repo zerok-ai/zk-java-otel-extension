@@ -1,21 +1,10 @@
 package ai.zerok.javaagent.utils;
 
-import ai.zerok.javaagent.exporter.internal.RedisHandler;
-import ai.zerok.javaagent.exporter.internal.SpanDetails;
-import ai.zerok.javaagent.exporter.internal.TraceDetails;
 import io.opentelemetry.api.trace.SpanContext;
-
-import java.io.OutputStream;
 import java.lang.reflect.Method;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import io.opentelemetry.api.trace.Span;
-import io.opentelemetry.api.trace.SpanKind;
-import io.opentelemetry.javaagent.bootstrap.Java8BytecodeBridge;
 
 public final class Utils {
     private static final String traceParentKey = "traceparent";
@@ -30,10 +19,6 @@ public final class Utils {
 
     public static String getTraceStateKey() {
         return traceStateKey;
-    }
-
-    public static String getTraceStatePrefix() {
-        return traceStatePrefix;
     }
 
     public static String getTraceStateZkKey() {
@@ -58,13 +43,6 @@ public final class Utils {
         return traceStatePrefix + spandId;
     }
 
-    public static String getTraceState() {
-        Span span = Java8BytecodeBridge.currentSpan();
-        SpanContext spanContext = span.getSpanContext();
-        String spanId = spanContext.getSpanId();
-        return traceStatePrefix + spanId;
-    }
-
     public static String getParentSpandId(Span span) {
         String parentSpanId = null;
         try {
@@ -80,34 +58,4 @@ public final class Utils {
         return parentSpanId;
     }
 
-    public static String extractTraceId(String traceparentHeader) {
-        String[] parts = traceparentHeader.split("-");
-        if (parts.length >= 2) {
-            String traceId = parts[1];
-            if (isValidHexadecimal(traceId)) {
-                return traceId;
-            }
-        }
-        return null;
-    }
-
-    public static String extractSpanId(String traceparentHeader) {
-        String[] parts = traceparentHeader.split("-");
-        if (parts.length >= 3) {
-            String spanId = parts[2];
-            if (isValidHexadecimal(spanId)) {
-                return spanId;
-            }
-        }
-        return null;
-    }
-
-    private static boolean isValidHexadecimal(String value) {
-        try {
-            Long.parseLong(value, 16);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
-    }
 }

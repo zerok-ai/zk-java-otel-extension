@@ -1,12 +1,7 @@
 package ai.zerok.javaagent.exception;
 
-import ai.zerok.javaagent.exporter.internal.Endpoint;
-import ai.zerok.javaagent.exporter.internal.RedisHandler;
-import ai.zerok.javaagent.exporter.internal.SpanDetails;
-import ai.zerok.javaagent.exporter.internal.TraceDetails;
 import ai.zerok.javaagent.utils.Utils;
 import io.opentelemetry.api.trace.Span;
-import io.opentelemetry.api.trace.SpanKind;
 
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -53,8 +48,6 @@ public class ExceptionInstrumentation {
                 return responseCode;
             }
 
-            updateRedisWithExceptionSpan(traceId, parentSpanId, traceParent);
-
             return responseCode;
         }
         catch (Throwable e) {
@@ -64,21 +57,5 @@ public class ExceptionInstrumentation {
         return 500;
     }
 
-    private static void updateRedisWithExceptionSpan(String traceId, String parentSpanId, String exceptionTraceParent) {
-        String spanId = Utils.extractSpanId(exceptionTraceParent);
-        SpanDetails exceptionSpanDetails = new SpanDetails();
-        exceptionSpanDetails.setSpanKind(SpanKind.CLIENT);
-        exceptionSpanDetails.setParentSpanID(parentSpanId);
-        exceptionSpanDetails.setProtocol("exception");
-        exceptionSpanDetails.setLocalEndpoint(new Endpoint());
-        exceptionSpanDetails.setRemoteEndpoint(new Endpoint());
-
-        TraceDetails exceptionTraceDetails = new TraceDetails();
-        exceptionTraceDetails.setSpanDetails(spanId, exceptionSpanDetails);
-
-        RedisHandler redisHandler = new RedisHandler();
-        redisHandler.putTraceData(traceId, exceptionTraceDetails);
-        redisHandler.forceSync();
-    }
 
 }
