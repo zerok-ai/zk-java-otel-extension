@@ -3,6 +3,9 @@ package ai.zerok.javaagent.utils;
 import ai.zerok.javaagent.exporter.internal.RedisHandler;
 import ai.zerok.javaagent.exporter.internal.SpanDetails;
 import ai.zerok.javaagent.exporter.internal.TraceDetails;
+import ai.zerok.javaagent.logger.LogsConfig;
+import ai.zerok.javaagent.logger.ZkLogger;
+import ai.zerok.javaagent.logger.ZkLoggerImpl;
 import io.opentelemetry.api.trace.SpanContext;
 
 import java.io.OutputStream;
@@ -18,6 +21,10 @@ import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.javaagent.bootstrap.Java8BytecodeBridge;
 
 public final class Utils {
+
+    private static ZkLogger logger = new ZkLoggerImpl(new LogsConfig());
+
+    private static Boolean isInitialized = false;
     private static final String traceParentKey = "traceparent";
     private static final String traceStateKey = "tracestate";
 
@@ -108,6 +115,12 @@ public final class Utils {
             return true;
         } catch (NumberFormatException e) {
             return false;
+        }
+    }
+
+    public static void InitializeExtension(){
+        if (!isInitialized) {
+            logger = new ZkLoggerImpl(new LogsConfig());
         }
     }
 }

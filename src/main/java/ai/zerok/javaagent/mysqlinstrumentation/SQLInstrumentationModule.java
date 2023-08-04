@@ -5,6 +5,7 @@ import io.opentelemetry.javaagent.extension.instrumentation.InstrumentationModul
 import io.opentelemetry.javaagent.extension.instrumentation.TypeInstrumentation;
 import java.util.Arrays;
 import java.util.List;
+import static ai.zerok.javaagent.utils.Utils.InitializeExtension;
 
 /**
  * This is a demo instrumentation which hooks into servlet invocation and modifies the http
@@ -14,6 +15,7 @@ import java.util.List;
 public final class SQLInstrumentationModule extends InstrumentationModule {
   public SQLInstrumentationModule() {
     super("jdbc");
+    InitializeExtension();
   }
 
   @Override

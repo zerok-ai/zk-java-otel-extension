@@ -6,11 +6,13 @@ import io.opentelemetry.javaagent.extension.instrumentation.TypeInstrumentation;
 
 import java.util.Arrays;
 import java.util.List;
+import static ai.zerok.javaagent.utils.Utils.InitializeExtension;
 
 @AutoService(InstrumentationModule.class)
 public final class SpringExceptionInstrumentationModule extends InstrumentationModule {
     public SpringExceptionInstrumentationModule() {
         super("springboot-exception");
+        InitializeExtension();
     }
 
     @Override
