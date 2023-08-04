@@ -158,17 +158,17 @@ tasks {
   assemble.dependsOn(shadowJar)
 }
 
-task fatJar(type: Jar) {
-  manifest {
-    attributes 'Main-Class': "ai.zerok.javaagent.exporter.ZKExporterProvider"
-  }
-  archiveBaseName = "${rootProject.name}"
-  tasks.withType(Jar){
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-  }
-  from { configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
-  with jar
-}
+//task fatJar(type: Jar) {
+//  manifest {
+//    attributes 'Main-Class': "ai.zerok.javaagent.exporter.ZKExporterProvider"
+//  }
+//  archiveBaseName = "${rootProject.name}"
+//  tasks.withType(Jar){
+//    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+//  }
+//  from { configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+//  with jar
+//}
 
 muzzle {
   pass {

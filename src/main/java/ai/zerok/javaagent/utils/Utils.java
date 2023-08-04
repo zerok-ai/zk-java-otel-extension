@@ -2,7 +2,6 @@ package ai.zerok.javaagent.utils;
 
 import ai.zerok.javaagent.logger.LogsConfig;
 import ai.zerok.javaagent.logger.ZkLogger;
-import ai.zerok.javaagent.logger.ZkLoggerImpl;
 import io.opentelemetry.api.trace.SpanContext;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -10,8 +9,6 @@ import java.util.HashMap;
 import io.opentelemetry.api.trace.Span;
 
 public final class Utils {
-
-    private static ZkLogger logger = new ZkLoggerImpl(new LogsConfig());
 
     private static Boolean isInitialized = false;
     private static final String traceParentKey = "traceparent";
@@ -63,11 +60,5 @@ public final class Utils {
             System.out.println("Exception caught while getting parent span id.");
         }
         return parentSpanId;
-    }
-
-    public static void InitializeExtension(){
-        if (!isInitialized) {
-            logger = new ZkLoggerImpl(new LogsConfig());
-        }
     }
 }

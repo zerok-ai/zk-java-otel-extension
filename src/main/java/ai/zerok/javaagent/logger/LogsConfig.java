@@ -1,24 +1,23 @@
 package ai.zerok.javaagent.logger;
 
 public class LogsConfig {
-
-    private  boolean color = true;
-    private  String level = "INFO";
-
-    public  boolean isColor() {
+    public static boolean isColor() {
         return color;
     }
 
-    public  void setColor(boolean color) {
-        this.color = color;
+    public static void setColor(boolean color) {
+        LogsConfig.color = color;
     }
 
-    public  String getLevel() {
+    public static String getLevel() {
         return level;
     }
 
-    public  void setLevel(String level) {
-        this.level = level;
+    public static void setLevel(String level) {
+        LogsConfig.level = level;
     }
+
+    private  static boolean color = true;
+    private static String level = "DEBUG";
 }
 

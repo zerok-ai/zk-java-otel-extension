@@ -6,13 +6,11 @@ import io.opentelemetry.javaagent.extension.instrumentation.TypeInstrumentation;
 
 import java.util.Arrays;
 import java.util.List;
-import static ai.zerok.javaagent.utils.Utils.InitializeExtension;
 
 @AutoService(InstrumentationModule.class)
 public class HttpServletInstrumentationModule extends InstrumentationModule {
     public HttpServletInstrumentationModule() {
         super("servlet-container");
-        InitializeExtension();
     }
 
     @Override
