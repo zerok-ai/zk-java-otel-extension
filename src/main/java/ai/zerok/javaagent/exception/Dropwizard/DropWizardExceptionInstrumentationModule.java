@@ -30,6 +30,8 @@ public final class DropWizardExceptionInstrumentationModule extends Instrumentat
             className.equals("ai.zerok.javaagent.exception.ExceptionInstrumentation") ||
             className.equals("ai.zerok.javaagent.exception.ThreadLocalHelper") ||
             className.equals("ai.zerok.javaagent.utils.Utils") ||
+            className.equals("ai.zerok.javaagent.logger.ZkLogger") ||
+            className.equals("ai.zerok.javaagent.logger.LogsConfig") ||
             className.startsWith("ai.zerok.javaagent.exporter.internal") ||
             className.startsWith("ai.zerok.javaagent.utils.LRUCache") ||
             className.startsWith("org.apache.commons.pool2") ||

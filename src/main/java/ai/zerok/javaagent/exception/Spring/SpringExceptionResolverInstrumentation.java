@@ -2,7 +2,7 @@ package ai.zerok.javaagent.exception.Spring;
 
 import ai.zerok.javaagent.exception.ExceptionInstrumentation;
 import ai.zerok.javaagent.exception.ThreadLocalHelper;
-//import ai.zerok.javaagent.logger.ZkLogger;
+import ai.zerok.javaagent.logger.ZkLogger;
 import io.opentelemetry.javaagent.bootstrap.Java8BytecodeBridge;
 import io.opentelemetry.javaagent.extension.instrumentation.TypeInstrumentation;
 import io.opentelemetry.javaagent.extension.instrumentation.TypeTransformer;
@@ -23,13 +23,13 @@ public class SpringExceptionResolverInstrumentation implements TypeInstrumentati
     }
 
     public void transform(TypeTransformer transformer) {
-       // ZkLogger.debug(log_tag,"Inside Exception ps- 1.2-spring....");
+       ZkLogger.debug(log_tag,"Inside Exception ps- 1.2-spring....");
 
         transformer.applyAdviceToMethod(
                 named("doResolveException"),
                 SpringExceptionResolverInstrumentation.class.getName() + "$SprintBootExceptionAdvice");
 
-        //ZkLogger.debug(log_tag,"Inside Exception ps- 1.3-spring....");
+        ZkLogger.debug(log_tag,"Inside Exception ps- 1.3-spring....");
     }
 
     @SuppressWarnings("unused")
@@ -39,7 +39,7 @@ public class SpringExceptionResolverInstrumentation implements TypeInstrumentati
         public static void onEnter(
                 @Advice.AllArguments(typing = Assigner.Typing.DYNAMIC) Object[] args
         ) {
-            //ZkLogger.debug("Caught exception in spring handler in agent.");
+            ZkLogger.debug("Caught exception in spring handler in agent.");
             for(int i=0;i<args.length;i++) {
                 Object arg = args[i];
                 if(arg instanceof Throwable) {

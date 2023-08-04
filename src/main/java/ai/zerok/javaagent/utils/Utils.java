@@ -1,7 +1,5 @@
 package ai.zerok.javaagent.utils;
 
-import ai.zerok.javaagent.logger.LogsConfig;
-import ai.zerok.javaagent.logger.ZkLogger;
 import io.opentelemetry.api.trace.SpanContext;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -10,7 +8,6 @@ import io.opentelemetry.api.trace.Span;
 
 public final class Utils {
 
-    private static Boolean isInitialized = false;
     private static final String traceParentKey = "traceparent";
     private static final String traceStateKey = "tracestate";
 

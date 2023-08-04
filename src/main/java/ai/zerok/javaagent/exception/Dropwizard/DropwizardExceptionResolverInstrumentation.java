@@ -10,7 +10,7 @@ import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.implementation.bytecode.assign.Assigner;
 import net.bytebuddy.matcher.ElementMatcher;
 import static net.bytebuddy.matcher.ElementMatchers.named;
-//import ai.zerok.javaagent.logger.ZkLogger;
+import ai.zerok.javaagent.logger.ZkLogger;
 
 public class DropwizardExceptionResolverInstrumentation implements TypeInstrumentation {
     private static final String log_tag = "DropwizardException";
@@ -23,13 +23,13 @@ public class DropwizardExceptionResolverInstrumentation implements TypeInstrumen
 
     public void transform(TypeTransformer transformer) {
 
-      // ZkLogger.debug(log_tag,"Inside Exception ps- 1.2-dropwizard....");
+      ZkLogger.debug(log_tag,"Inside Exception ps- 1.2-dropwizard....");
 
         transformer.applyAdviceToMethod(
                 named("mapException"),
                 DropwizardExceptionResolverInstrumentation.class.getName() + "$DropWizardExceptionAdvice");
 
-       //ZkLogger.debug(log_tag,"Inside Exception ps- 1.3-dropwizard....");
+       ZkLogger.debug(log_tag,"Inside Exception ps- 1.3-dropwizard....");
     }
 
     @SuppressWarnings("unused")
@@ -39,7 +39,7 @@ public class DropwizardExceptionResolverInstrumentation implements TypeInstrumen
         public static void onEnter(
                 @Advice.AllArguments(typing = Assigner.Typing.DYNAMIC) Object[] args
         ) {
-            //ZkLogger.debug(log_tag,"Caught exception in dropwizard handler in agent.");
+            ZkLogger.debug(log_tag,"Caught exception in dropwizard handler in agent.");
             Span span = Java8BytecodeBridge.currentSpan();
 
             for(int i=0;i<args.length;i++) {
