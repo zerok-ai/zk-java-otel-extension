@@ -7,10 +7,13 @@ import io.opentelemetry.javaagent.extension.instrumentation.TypeInstrumentation;
 import java.util.Arrays;
 import java.util.List;
 
+import static ai.zerok.javaagent.utils.Utils.InitializeExtension;
+
 @AutoService(InstrumentationModule.class)
 public final class DropWizardExceptionInstrumentationModule extends InstrumentationModule {
     public DropWizardExceptionInstrumentationModule() {
         super("dropwizard-exception");
+        InitializeExtension();
     }
 
     @Override
