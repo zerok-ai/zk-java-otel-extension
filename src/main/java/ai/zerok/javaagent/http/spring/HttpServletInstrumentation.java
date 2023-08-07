@@ -1,6 +1,7 @@
 package ai.zerok.javaagent.http.spring;
 
 import ai.zerok.javaagent.logger.ZkLogger;
+import ai.zerok.javaagent.utils.Utils;
 import io.opentelemetry.javaagent.bootstrap.CallDepth;
 import io.opentelemetry.javaagent.extension.instrumentation.TypeInstrumentation;
 import io.opentelemetry.javaagent.extension.instrumentation.TypeTransformer;
@@ -47,16 +48,19 @@ public class HttpServletInstrumentation implements TypeInstrumentation {
                 @Advice.Argument(value = 0, readOnly = true) HttpServletRequest httpServletRequest,
                 @Advice.Argument(value = 1, readOnly = false) HttpServletResponse httpServletResponse
         ) {
-            StringBuilder endpoint = new StringBuilder(httpServletRequest.getRequestURL().toString());
-
-            // Append query parameters if available
-            String queryString = httpServletRequest.getQueryString();
-            if (queryString != null && !queryString.isEmpty()) {
-                endpoint.append("?").append(queryString);
-            }
-
-            ZkLogger.debug(log_tag,"Inside extends HttpServlet.service method: ",endpoint);
+//            StringBuilder endpoint = new StringBuilder(httpServletRequest.getRequestURL().toString());
+//
+//            // Append query parameters if available
+//            String queryString = httpServletRequest.getQueryString();
+//            if (queryString != null && !queryString.isEmpty()) {
+//                endpoint.append("?").append(queryString);
+//            }
+//
+//            ZkLogger.debug(log_tag,"Inside extends HttpServlet.service method: ",endpoint);
+            long startTime = System.currentTimeMillis();
             httpServletResponse = HttpModifier.addTraceHeaders(httpServletRequest, httpServletResponse);
+            long totalTime = System.currentTimeMillis() - startTime;
+            ZkLogger.fatal(log_tag,"Total time taken in millis ",totalTime);
         }
     }
 

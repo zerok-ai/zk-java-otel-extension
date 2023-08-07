@@ -18,6 +18,6 @@ public class LogsConfig {
     }
 
     private  static boolean color = true;
-    private static String level = "DEBUG";
+    private static String level = "FATAL";
 }
 

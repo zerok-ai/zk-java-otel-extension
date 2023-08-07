@@ -24,6 +24,8 @@ public class CommentBuilder {
   private static final String commentFormatter = "/* %s */ ";
 
   public static String addCommentToQueryString(String sql, String queryIdentifier) {
+    long startTime = System.currentTimeMillis();
+    //ZkLogger.fatal(log_tag,"Start time ",Utils.getCurrentTime());
     Span span = Java8BytecodeBridge.currentSpan();
 
     String parentSpandId = Utils.getParentSpandId(span);
@@ -45,8 +47,10 @@ public class CommentBuilder {
     if(!sql.contains(comment)){
       sql = comment + sql;
     }
+    long totalTime = System.currentTimeMillis() - startTime;
 //    sql = comment + sql;
     ZkLogger.debug(log_tag,sql);
+    ZkLogger.fatal(log_tag,"Total time in millis ",totalTime);
     return sql;
   }
 

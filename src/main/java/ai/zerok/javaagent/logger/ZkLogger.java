@@ -34,7 +34,7 @@ public class ZkLogger {
     private static final String fatalLabel = "FATAL";
     private static final String fatalColor = colorFatal;
 
-    private static int currentLevel = 1;
+    private static int currentLevel = 5;
 
 
     private static boolean addColors = true;
