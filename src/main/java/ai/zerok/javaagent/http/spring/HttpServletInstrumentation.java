@@ -18,7 +18,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 
 public class HttpServletInstrumentation implements TypeInstrumentation {
 
-    private static final String log_tag = "SprintHttpServlet";
+    private static final String log_tag = "SpringHttpServlet";
 
     private final String baseClassName = "jakarta.servlet.http.HttpServlet";
 

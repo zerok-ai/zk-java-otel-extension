@@ -10,7 +10,7 @@ import java.util.List;
 @AutoService(InstrumentationModule.class)
 public class HttpServletInstrumentationModule extends InstrumentationModule {
 
-    private static final String log_tag = "SprintHttpServerModule";
+    private static final String log_tag = "SpringHttpServerModule";
     public HttpServletInstrumentationModule() {
         super("servlet-container");
     }

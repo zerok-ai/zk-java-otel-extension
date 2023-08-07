@@ -11,7 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public class HttpModifier {
 
-    private static final String log_tag = "SprintHttpModifier";
+    private static final String log_tag = "SpringHttpModifier";
     private static boolean isHeaderPresent(String key, HttpServletRequest httpServletRequest){
         return CollectionUtils.isKeyPresentIn(httpServletRequest.getHeaderNames(), key);
     }

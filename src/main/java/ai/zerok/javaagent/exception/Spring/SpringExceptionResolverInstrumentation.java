@@ -27,13 +27,13 @@ public class SpringExceptionResolverInstrumentation implements TypeInstrumentati
 
         transformer.applyAdviceToMethod(
                 named("doResolveException"),
-                SpringExceptionResolverInstrumentation.class.getName() + "$SprintBootExceptionAdvice");
+                SpringExceptionResolverInstrumentation.class.getName() + "$SpringBootExceptionAdvice");
 
         ZkLogger.debug(log_tag,"Inside Exception ps- 1.3-spring....");
     }
 
     @SuppressWarnings("unused")
-    public static class SprintBootExceptionAdvice {
+    public static class SpringBootExceptionAdvice {
 
         @Advice.OnMethodEnter(suppress = Throwable.class)
         public static void onEnter(
