@@ -1,5 +1,6 @@
 package ai.zerok.javaagent.exception;
 
+import ai.zerok.javaagent.logger.ZkLogger;
 import ai.zerok.javaagent.utils.Utils;
 import io.opentelemetry.api.trace.Span;
 
@@ -10,14 +11,16 @@ import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 
 public class ExceptionInstrumentation {
+
+    private static final String log_tag = "ExceptionInstrumentation";
     public static final String operatorUrl = "http://zk-operator.zk-client.svc.cluster.local/exception";
     public static int sendExceptionDataToOperator(Throwable throwable, Span span) {
-        System.out.println("In sendExceptionDataToOperator");
+        ZkLogger.debug(log_tag,"In sendExceptionDataToOperator");
         try {
             String traceId = span.getSpanContext().getTraceId();
             String parentSpanId = span.getSpanContext().getSpanId();
 
-            System.out.println("Preparing to send Exception for trace ID:"+traceId+"& SpanID:"+parentSpanId+".");
+            ZkLogger.debug(log_tag,"Preparing to send Exception for trace ID:"+traceId+"& SpanID:"+parentSpanId+".");
 
             URL url = new URL(operatorUrl);
             URLConnection con = url.openConnection();
@@ -33,25 +36,25 @@ public class ExceptionInstrumentation {
             os.write(input, 0, input.length);
 
             int responseCode = httpURLConnection.getResponseCode();
-            System.out.println("Response Code " + responseCode);
+            ZkLogger.debug(log_tag,"Response Code " + responseCode);
 
             if (responseCode != HttpURLConnection.HTTP_OK) {
-                System.out.println("Failed to upload exception data. Got " + responseCode );
+                ZkLogger.error(log_tag,"Failed to upload exception data. Got " + responseCode );
                 return responseCode;
             }
 
             /* Upload data to redis. */
             String traceParent = httpURLConnection.getRequestProperty(Utils.getTraceParentKey());
-            System.out.println("traceparent : " + traceParent);
+            ZkLogger.debug(log_tag,"traceparent : " + traceParent);
             if(traceParent == null || traceParent.isEmpty()) {
-                System.out.println("missing traceparent " + traceParent);
+                ZkLogger.error(log_tag,"missing traceparent " + traceParent);
                 return responseCode;
             }
 
             return responseCode;
         }
         catch (Throwable e) {
-            System.out.println("Exception caught while sending exception data to operator."+e.getMessage());
+            ZkLogger.error(log_tag,"Exception caught while sending exception data to operator."+e.getMessage());
             e.getStackTrace();
         }
         return 500;

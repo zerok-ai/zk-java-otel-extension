@@ -1,5 +1,6 @@
 package ai.zerok.javaagent.http.dropwizard;
 
+import ai.zerok.javaagent.logger.ZkLogger;
 import io.opentelemetry.javaagent.extension.instrumentation.TypeInstrumentation;
 import io.opentelemetry.javaagent.extension.instrumentation.TypeTransformer;
 import net.bytebuddy.asm.Advice;
@@ -15,6 +16,8 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 
 public class HttpServletInstrumentation implements TypeInstrumentation {
 
+    private static final String log_tag = "DropWizardHttpServlet";
+
     private final String baseClassName = "javax.servlet.http.HttpServlet";
 
     @Override
@@ -24,14 +27,14 @@ public class HttpServletInstrumentation implements TypeInstrumentation {
 
 
     public void transform(TypeTransformer transformer) {
-        System.out.println("Inside extends javax.HttpServlet 1.11....");
+        ZkLogger.debug(log_tag,"Inside extends javax.HttpServlet 1.11....");
 
         transformer.applyAdviceToMethod(
                 named("service")
                         .and(ElementMatchers.isProtected()),
                 ServletContainerServiceAdvice.class.getName());
 
-        System.out.println("Inside extends javax.HttpServlet 1.22....");
+        ZkLogger.debug(log_tag,"Inside extends javax.HttpServlet 1.22....");
     }
 
     @SuppressWarnings("unused")
@@ -42,7 +45,7 @@ public class HttpServletInstrumentation implements TypeInstrumentation {
                 @Advice.Argument(value = 0, readOnly = true) HttpServletRequest httpServletRequest,
                 @Advice.Argument(value = 1, readOnly = false) HttpServletResponse httpServletResponse
         ) {
-            System.out.println("Inside extends HttpServlet.service method...");
+            ZkLogger.debug(log_tag,"Inside extends HttpServlet.service method...");
             httpServletResponse = HttpModifier.addTraceHeaders(httpServletRequest, httpServletResponse);
         }
     }

@@ -9,6 +9,8 @@ import java.util.List;
 
 @AutoService(InstrumentationModule.class)
 public class HttpServletInstrumentationModule extends InstrumentationModule {
+
+    private static final String log_tag = "SprintHttpServerModule";
     public HttpServletInstrumentationModule() {
         super("servlet-container");
     }
@@ -27,7 +29,9 @@ public class HttpServletInstrumentationModule extends InstrumentationModule {
     @Override
     public boolean isHelperClass(String className) {
         return
-                className.startsWith("ai.zerok.javaagent.utils")
+                className.startsWith("ai.zerok.javaagent.utils") ||
+                className.equals("ai.zerok.javaagent.logger.ZkLogger") ||
+                className.equals("ai.zerok.javaagent.logger.LogsConfig")
                 || className.equals("ai.zerok.javaagent.http.spring.HttpModifier");
     }
 

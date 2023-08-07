@@ -1,5 +1,6 @@
 package ai.zerok.javaagent.http.dropwizard;
 
+import ai.zerok.javaagent.logger.ZkLogger;
 import ai.zerok.javaagent.utils.CollectionUtils;
 import ai.zerok.javaagent.utils.Utils;
 import io.opentelemetry.api.trace.Span;
@@ -10,6 +11,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class HttpModifier {
+
+    private static final String log_tag = "DropWizardHttpModifier";
 
     private static boolean isHeaderPresent(String key, HttpServletRequest httpServletRequest){
         return CollectionUtils.isKeyPresentIn(httpServletRequest.getHeaderNames(), key);
@@ -42,7 +45,7 @@ public class HttpModifier {
             String parentSpandId = Utils.getParentSpandId(span);
             String traceParent = Utils.getTraceParent(traceId, parentSpandId);
             httpServletResponse.setHeader(Utils.getTraceParentKey(), traceParent);
-            System.out.println("Adding trace headers to response");
+            ZkLogger.debug(log_tag ,"Adding trace headers to response");
         }
         return httpServletResponse;
     }

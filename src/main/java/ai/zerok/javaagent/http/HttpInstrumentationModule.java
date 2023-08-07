@@ -28,6 +28,8 @@ public class HttpInstrumentationModule extends InstrumentationModule {
     }
     @Override
     public boolean isHelperClass(String className) {
-        return className.equals("ai.zerok.javaagent.utils.Utils");
+        return className.equals("ai.zerok.javaagent.utils.Utils") ||
+        className.equals("ai.zerok.javaagent.logger.ZkLogger") ||
+                className.equals("ai.zerok.javaagent.logger.LogsConfig") ;
     }
 }

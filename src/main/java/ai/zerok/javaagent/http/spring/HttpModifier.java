@@ -6,10 +6,12 @@ import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanContext;
 import io.opentelemetry.javaagent.bootstrap.Java8BytecodeBridge;
 import jakarta.servlet.http.HttpServletRequest;
+import ai.zerok.javaagent.logger.ZkLogger;
 import jakarta.servlet.http.HttpServletResponse;
 
 public class HttpModifier {
 
+    private static final String log_tag = "SprintHttpModifier";
     private static boolean isHeaderPresent(String key, HttpServletRequest httpServletRequest){
         return CollectionUtils.isKeyPresentIn(httpServletRequest.getHeaderNames(), key);
     }
@@ -40,7 +42,7 @@ public class HttpModifier {
             String parentSpandId = Utils.getParentSpandId(span);
             String traceParent = Utils.getTraceParent(traceId, parentSpandId);
             httpServletResponse.setHeader(Utils.getTraceParentKey(), traceParent);
-            System.out.println("Adding trace headers to response");
+            ZkLogger.debug(log_tag,"Adding trace headers to response "+traceParent);
         }
         return httpServletResponse;
     }

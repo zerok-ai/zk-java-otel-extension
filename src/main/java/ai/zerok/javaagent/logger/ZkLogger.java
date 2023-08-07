@@ -1,5 +1,7 @@
 package ai.zerok.javaagent.logger;
 
+import ai.zerok.javaagent.utils.Utils;
+
 public class ZkLogger {
 
     private static final String colorReset = "\033[0m";
@@ -86,12 +88,12 @@ public class ZkLogger {
         if (currentLevel <= level) {
             StringBuilder sb = new StringBuilder();
             String delimiter = " ";
-            sb.append(System.currentTimeMillis()).append(" |").append(delimiter);
             if (addColors) {
                 sb.append(color).append("[").append(label).append("]").append(delimiter);
             } else {
                 sb.append("[").append(label).append("] ").append(delimiter);
             }
+            sb.append(Utils.getCurrentTime()).append(" |").append(delimiter);
             sb.append(tag).append(delimiter);
             sb.append("|").append(delimiter);
             for (Object message : messages) {

@@ -5,6 +5,7 @@
 
 package ai.zerok.javaagent.instrumentation.hibernate;
 
+import ai.zerok.javaagent.logger.ZkLogger;
 import ai.zerok.javaagent.utils.Utils;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanContext;
@@ -13,6 +14,8 @@ import io.opentelemetry.javaagent.bootstrap.Java8BytecodeBridge;
 import java.lang.reflect.Method;
 
 public class CommentBuilder {
+
+  private static final String log_tag = "CommentBuilder";
 
   private static final String queryIdentifierFormatter = "%s: ";
   private static final String traceIdFormatter = "%s tId:%s ";
@@ -43,7 +46,7 @@ public class CommentBuilder {
       sql = comment + sql;
     }
 //    sql = comment + sql;
-    System.out.println(sql);
+    ZkLogger.debug(log_tag,sql);
     return sql;
   }
 

@@ -1,12 +1,17 @@
 package ai.zerok.javaagent.utils;
 
+import ai.zerok.javaagent.logger.ZkLogger;
 import io.opentelemetry.api.trace.SpanContext;
 import java.lang.reflect.Method;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
 import io.opentelemetry.api.trace.Span;
 
 public final class Utils {
+
+    private static final String log_tag = "Utils";
 
     private static final String traceParentKey = "traceparent";
     private static final String traceStateKey = "tracestate";
@@ -31,7 +36,7 @@ public final class Utils {
         map.put("message",r.getMessage());
         String stackTraceString = Arrays.toString(r.getStackTrace());
         map.put("stacktrace",stackTraceString);
-        System.out.println("json string is "+map);
+        ZkLogger.debug(log_tag ,"json string is "+map);
         return map.toString();
     }
 
@@ -54,8 +59,14 @@ public final class Utils {
             parentSpanId = parentSpan.getSpanId();
         }
         catch (Exception e) {
-            System.out.println("Exception caught while getting parent span id.");
+            ZkLogger.error(log_tag ,"Exception caught while getting parent span id.");
         }
         return parentSpanId;
+    }
+
+    public static String getCurrentTime() {
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return currentDateTime.format(formatter);
     }
 }
