@@ -84,9 +84,7 @@ public final class Utils {
         String[] parts = traceparentHeader.split("-");
         if (parts.length >= 2) {
             String traceId = parts[1];
-            if (isValidHexadecimal(traceId)) {
-                return traceId;
-            }
+            return traceId;
         }
         return null;
     }
@@ -95,19 +93,8 @@ public final class Utils {
         String[] parts = traceparentHeader.split("-");
         if (parts.length >= 3) {
             String spanId = parts[2];
-            if (isValidHexadecimal(spanId)) {
-                return spanId;
-            }
+            return spanId;
         }
         return null;
-    }
-
-    private static boolean isValidHexadecimal(String value) {
-        try {
-            Long.parseLong(value, 16);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
     }
 }
