@@ -3,10 +3,11 @@ package ai.zerok.javaagent.utils;
 import ai.zerok.javaagent.logger.ZkLogger;
 import io.opentelemetry.api.trace.SpanContext;
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
+
 import io.opentelemetry.api.trace.Span;
 
 public final class Utils {
@@ -30,6 +31,8 @@ public final class Utils {
     public static String getTraceStateZkKey() {
         return traceStateZkKey;
     }
+
+    public static Timer timer = setupTimer();
 
     public static String getExceptionPayload(Throwable r) {
         HashMap<String,String> map = new HashMap<>();
@@ -65,8 +68,39 @@ public final class Utils {
     }
 
     public static String getCurrentTime() {
-        LocalDateTime currentDateTime = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        return currentDateTime.format(formatter);
+        long epochTime = System.currentTimeMillis() / 1000;
+        SimpleDateFormat sdf = new SimpleDateFormat("yy-MM-dd HH:mm:ss");
+        Date date = new Date(epochTime * 1000);
+        return sdf.format(date);
     }
+
+    public static Timer setupTimer() {
+        Timer timer = new Timer();
+
+        // Create a TimerTask
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                ZkLogger.debug(log_tag, "Timer tick.");
+                updateConfigFromEnvVariables();
+            }
+        };
+
+        // Schedule the TimerTask to run every 1 minute
+        timer.schedule(task, 0, 60000);
+
+        return timer;
+    }
+
+    public static void updateConfigFromEnvVariables() {
+        String envVarName = "ZK_LOG_LEVEL";
+        String value = readEnvironmentVariable(envVarName);
+        ZkLogger.setLogLevel(value);
+    }
+
+    public static String readEnvironmentVariable(String variableName) {
+        Map<String, String> env = System.getenv();
+        return env.get(variableName);
+    }
+
 }

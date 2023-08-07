@@ -4,6 +4,7 @@ import ai.zerok.javaagent.utils.Utils;
 
 public class ZkLogger {
 
+    private static final String log_tag = "ZkLogger";
     private static final String colorReset = "\033[0m";
     private static final String colorRed = "\033[31m";
     private static final String colorGreen = "\033[32m";
@@ -34,13 +35,17 @@ public class ZkLogger {
     private static final String fatalLabel = "FATAL";
     private static final String fatalColor = colorFatal;
 
-    private static int currentLevel = 5;
+    private static int currentLevel = 1;
 
 
     private static boolean addColors = true;
 
-    public static void init() {
-        switch (LogsConfig.getLevel()) {
+    public static void setLogLevel(String logLevel) {
+        error(log_tag,"Setting level to ",logLevel);
+        if (logLevel == null) {
+            return;
+        }
+        switch (logLevel) {
             case "DEBUG":
                 currentLevel = debugLevel;
                 break;
@@ -57,7 +62,6 @@ public class ZkLogger {
                 currentLevel = fatalLevel;
                 break;
         }
-        addColors = LogsConfig.isColor();
     }
 
 
