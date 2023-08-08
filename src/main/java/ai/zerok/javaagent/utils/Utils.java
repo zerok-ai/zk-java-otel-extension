@@ -1,5 +1,8 @@
 package ai.zerok.javaagent.utils;
 
+import ai.zerok.javaagent.exporter.internal.RedisHandler;
+import ai.zerok.javaagent.exporter.internal.SpanDetails;
+import ai.zerok.javaagent.exporter.internal.TraceDetails;
 import io.opentelemetry.api.trace.SpanContext;
 
 import java.io.OutputStream;
@@ -11,13 +14,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.javaagent.bootstrap.Java8BytecodeBridge;
 
 public final class Utils {
-
-    public static final String operatorUrl = "http://zk-operator.zk-client.svc.cluster.local/exception";
-    private static final String traceParentKey = "traceparent";
-    private static final String traceStateKey = "tracestate";
+    public static final String traceParentKey = "traceparent";
+    public static final String traceStateKey = "tracestate";
 
     private static final String traceStateZkKey = "zerok";
     private static final String traceStatePrefix = traceStateZkKey + "=";
@@ -38,43 +40,7 @@ public final class Utils {
         return traceStateZkKey;
     }
 
-    public static int sendExceptionDataToOperator(Throwable throwable, Span span) {
-        try {
-            String traceId = span.getSpanContext().getTraceId();
-            String spanId = span.getSpanContext().getSpanId();
-            URL url = new URL(operatorUrl);
-            URLConnection con = url.openConnection();
-            HttpURLConnection httpURLConnection = (HttpURLConnection)con;
-            httpURLConnection.setRequestMethod("POST");
-            httpURLConnection.setRequestProperty("Content-type", "application/json");
-            String traceParent = getTraceParent(traceId, spanId);
-            httpURLConnection.setRequestProperty(traceParentKey,traceParent);
-            String parentSpanId = Utils.getParentSpandId(span);
-            String traceState = getTraceState(parentSpanId);
-            if (traceState != null ){
-                httpURLConnection.setRequestProperty(traceStateKey,traceState);
-            }
-
-            httpURLConnection.setDoOutput(true);
-
-            String body = getExceptionPayload(throwable);
-            OutputStream os = con.getOutputStream();
-            byte[] input = body.getBytes(StandardCharsets.UTF_8);
-            os.write(input, 0, input.length);
-
-            int responseCode = httpURLConnection.getResponseCode();
-            System.out.println("Response Code " + responseCode);
-            return responseCode;
-
-        }
-        catch (Throwable e) {
-            System.out.println("Exception caught while sending exception data to operator."+e.getMessage());
-            System.out.println(Arrays.toString(e.getStackTrace()));
-        }
-        return 500;
-    }
-
-    private static String getExceptionPayload(Throwable r) {
+    public static String getExceptionPayload(Throwable r) {
         HashMap<String,String> map = new HashMap<>();
         map.put("message",r.getMessage());
         String stackTraceString = Arrays.toString(r.getStackTrace());
@@ -114,4 +80,21 @@ public final class Utils {
         return parentSpanId;
     }
 
+    public static String extractTraceId(String traceparentHeader) {
+        String[] parts = traceparentHeader.split("-");
+        if (parts.length >= 2) {
+            String traceId = parts[1];
+            return traceId;
+        }
+        return null;
+    }
+
+    public static String extractSpanId(String traceparentHeader) {
+        String[] parts = traceparentHeader.split("-");
+        if (parts.length >= 3) {
+            String spanId = parts[2];
+            return spanId;
+        }
+        return null;
+    }
 }
