@@ -7,12 +7,13 @@ import ai.zerok.javaagent.exporter.internal.TraceDetails;
 import ai.zerok.javaagent.utils.Utils;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanKind;
-
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
-import java.nio.charset.StandardCharsets;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.List;
+import java.util.Map;
 
 public class ExceptionInstrumentation {
     public static final String operatorUrl = "http://zk-operator.zk-client.svc.cluster.local/exception";
@@ -24,20 +25,18 @@ public class ExceptionInstrumentation {
 
             System.out.println("Preparing to send Exception for trace ID:"+traceId+"& SpanID:"+parentSpanId+".");
 
-            URL url = new URL(operatorUrl);
-            URLConnection con = url.openConnection();
-            HttpURLConnection httpURLConnection = (HttpURLConnection)con;
-            httpURLConnection.setRequestMethod("POST");
-            httpURLConnection.setRequestProperty("Content-type", "application/json");
-
-            httpURLConnection.setDoOutput(true);
-
+            HttpClient client = HttpClient.newHttpClient();
             String body = Utils.getExceptionPayload(throwable);
-            OutputStream os = con.getOutputStream();
-            byte[] input = body.getBytes(StandardCharsets.UTF_8);
-            os.write(input, 0, input.length);
 
-            int responseCode = httpURLConnection.getResponseCode();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .header("Content-Type", "application/json")
+                    .uri(URI.create(operatorUrl))
+                    .POST(HttpRequest.BodyPublishers.ofString(body))
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            int responseCode = response.statusCode();
             System.out.println("Response Code " + responseCode);
 
             if (responseCode != HttpURLConnection.HTTP_OK) {
@@ -46,14 +45,12 @@ public class ExceptionInstrumentation {
             }
 
             /* Upload data to redis. */
-            String traceParent = httpURLConnection.getRequestProperty(Utils.getTraceParentKey());
+            String traceParent = getHeader(request, Utils.getTraceParentKey());
             System.out.println("traceparent : " + traceParent);
             if(traceParent == null || traceParent.isEmpty()) {
                 System.out.println("missing traceparent " + traceParent);
                 return responseCode;
             }
-
-            updateRedisWithExceptionSpan(traceId, parentSpanId, traceParent);
 
             return responseCode;
         }
@@ -79,6 +76,18 @@ public class ExceptionInstrumentation {
         RedisHandler redisHandler = new RedisHandler();
         redisHandler.putTraceData(traceId, exceptionTraceDetails);
         redisHandler.forceSync();
+    }
+
+    private static String getHeader(HttpRequest request, String headerName) {
+        Map<String, List<String>> headers = request.headers().map();
+        List<String> headerValues = headers.get(headerName);
+        if (headerValues != null && !headerValues.isEmpty()) {
+            String headerValue = headerValues.get(0);
+            return headerValue;
+        } else {
+            System.out.println("Header not found");
+        }
+        return null;
     }
 
 }
