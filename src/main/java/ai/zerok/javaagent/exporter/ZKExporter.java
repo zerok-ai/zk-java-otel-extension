@@ -21,6 +21,8 @@ public class ZKExporter implements SpanExporter {
     Map<String, TraceDetails> traceStore = new HashMap<>();
     boolean SET_HTTP_ENDPOINT = false;
     boolean SET_SPAN_ATTRIBUTES = false;
+    private static final String exceptionUrl = "http://zk-operator.zk-client.svc.cluster.local/exception";
+    private static final String postMethod = "POST";
 
     @Override
     public CompletableResultCode export(Collection<SpanData> spanDataList) {
@@ -62,10 +64,16 @@ public class ZKExporter implements SpanExporter {
                 spanDetails.setAttributes(attributes.asMap().toString());
             }
 
+            String httpMethod = attributes.get(HTTP_METHOD);
             if(attributes.get(DB_SYSTEM) != null) {
                 spanDetails.setProtocol(attributes.get(DB_SYSTEM));
-            } else if(attributes.get(HTTP_METHOD) != null) {
+            } else if(httpMethod != null) {
                 spanDetails.setProtocol(attributes.get(NET_PROTOCOL_NAME));
+                String url = attributes.get(HTTP_URL);
+                if (exceptionUrl.equals(url) && postMethod.equals(httpMethod)) {
+                    spanDetails.setProtocol("exception");
+                }
+                //Changing protocol to exception.
                 if(SET_HTTP_ENDPOINT) {
                     String httpRoute = attributes.get(HTTP_ROUTE);
                     String netPeerName = attributes.get(NET_PEER_NAME);
