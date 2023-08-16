@@ -3,7 +3,7 @@ package ai.zerok.javaagent.exporter;
 import ai.zerok.javaagent.exporter.internal.RedisHandler;
 import ai.zerok.javaagent.exporter.internal.SpanDetails;
 import ai.zerok.javaagent.exporter.internal.TraceDetails;
-import io.opentelemetry.api.common.AttributeKey;
+import com.google.gson.Gson;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.sdk.common.CompletableResultCode;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
@@ -13,14 +13,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import static ai.zerok.javaagent.exporter.ZKSpanUtils.printSpan;
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.*;
 
 public class ZKExporter implements SpanExporter {
     RedisHandler redisHandler = new RedisHandler();
     Map<String, TraceDetails> traceStore = new HashMap<>();
     boolean SET_HTTP_ENDPOINT = false;
-    boolean SET_SPAN_ATTRIBUTES = false;
+    boolean SET_SPAN_ATTRIBUTES = true;
     private static final String exceptionUrl = "http://zk-operator.zk-client.svc.cluster.local/exception";
     private static final String postMethod = "POST";
 
@@ -56,39 +55,18 @@ public class ZKExporter implements SpanExporter {
             SpanDetails spanDetails = new SpanDetails();
             spanDetails.setParentSpanID(spanData.getParentSpanId());
             spanDetails.setSpanKind(spanData.getKind());
-            spanDetails.setLocalEndpoint(ZKSpanUtils.getLocalEndpoint(spanData));
-            spanDetails.setRemoteEndpoint(ZKSpanUtils.getRemoteEndpoint(spanData));
-
+            spanDetails.setStart_ns(spanData.getStartEpochNanos());
+            spanDetails.setEnd_ns(spanData.getEndEpochNanos());
             Attributes attributes = spanData.getAttributes();
-            if(SET_SPAN_ATTRIBUTES) {
-                spanDetails.setAttributes(attributes.asMap().toString());
-            }
 
-            String httpMethod = attributes.get(HTTP_METHOD);
-            if(attributes.get(DB_SYSTEM) != null) {
-                spanDetails.setProtocol(attributes.get(DB_SYSTEM));
-            } else if(httpMethod != null) {
-                spanDetails.setProtocol(attributes.get(NET_PROTOCOL_NAME));
-                String url = attributes.get(HTTP_URL);
-                if (exceptionUrl.equals(url) && postMethod.equals(httpMethod)) {
-                    spanDetails.setProtocol("exception");
+            if(SET_SPAN_ATTRIBUTES) {
+                Gson gson = new Gson();
+                try {
+                    spanDetails.setAttributes(gson.toJsonTree(attributes.asMap()).getAsJsonObject());
+                } catch (Exception e) {
+                    System.out.println("Failed to set span attributes. traceId: " + traceId + ", spanId: " + spanData.getSpanId());
+                    e.printStackTrace();
                 }
-                //Changing protocol to exception.
-                if(SET_HTTP_ENDPOINT) {
-                    String httpRoute = attributes.get(HTTP_ROUTE);
-                    String netPeerName = attributes.get(NET_PEER_NAME);
-                    String httpURL = attributes.get(HTTP_URL);
-                    if (httpRoute == null || httpRoute.isEmpty()) {
-                        if (netPeerName != null && !netPeerName.isEmpty() && httpURL != null && !httpURL.isEmpty()) {
-                            httpRoute = httpURL.substring(httpURL.indexOf(netPeerName) + netPeerName.length());
-                        } else {
-                            httpRoute = "";
-                        }
-                    }
-                    spanDetails.setEndpoint("[" + attributes.get(HTTP_METHOD) + "]" + httpRoute);
-                }
-            } else {
-                spanDetails.setProtocol(attributes.get(NET_PROTOCOL_NAME));
             }
 
             TraceDetails traceDetails = traceStore.get(traceId);
