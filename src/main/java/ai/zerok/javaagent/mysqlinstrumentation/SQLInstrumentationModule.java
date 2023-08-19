@@ -24,12 +24,13 @@ public final class SQLInstrumentationModule extends InstrumentationModule {
   @Override
   public List<TypeInstrumentation> typeInstrumentations() {
     return Arrays.asList(
-        new SQLStatementInstrumentation(),
-        new SQLConnectionInstrumentation(),
+//        new SQLStatementInstrumentation(),
+        new SQLConnectionInstrumentation()
         //        new HibernateQueryInstrumentation(),
-        new MessageBuilderInstrumentation(),
-        new NativeProtocolInstrumentation(),
-        new DatabaseMetadataInstrumentation());
+//        new MessageBuilderInstrumentation(),
+//        new NativeProtocolInstrumentation(),
+//        new DatabaseMetadataInstrumentation()
+        );
   }
 
   @Override

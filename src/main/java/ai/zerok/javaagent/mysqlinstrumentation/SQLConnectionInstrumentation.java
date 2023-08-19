@@ -6,8 +6,7 @@
 package ai.zerok.javaagent.mysqlinstrumentation;
 
 import static io.opentelemetry.javaagent.extension.matcher.AgentElementMatchers.implementsInterface;
-import static net.bytebuddy.matcher.ElementMatchers.nameStartsWith;
-import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.*;
 
 import ai.zerok.javaagent.instrumentation.hibernate.CommentBuilder;
 import io.opentelemetry.javaagent.extension.instrumentation.TypeInstrumentation;
@@ -26,8 +25,11 @@ public class SQLConnectionInstrumentation implements TypeInstrumentation {
 
   public void transform(TypeTransformer transformer) {
     transformer.applyAdviceToMethod(
-        nameStartsWith("prepareStatement")
+        named("prepareStatement")
+            .and(ElementMatchers.takesArguments(3))
             .and(ElementMatchers.takesArgument(0, String.class))
+            .and(ElementMatchers.takesArgument(1, int.class))
+            .and(ElementMatchers.takesArgument(2, int.class))
             .and(ElementMatchers.isPublic()),
         PrepareStatementAdvice.class.getName());
   }
