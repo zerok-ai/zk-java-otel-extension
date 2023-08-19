@@ -1,20 +1,12 @@
 package ai.zerok.javaagent.exception;
 
-import ai.zerok.javaagent.exporter.internal.RedisHandler;
-import ai.zerok.javaagent.exporter.internal.SpanDetails;
-import ai.zerok.javaagent.exporter.internal.TraceDetails;
 import ai.zerok.javaagent.utils.Utils;
 import io.opentelemetry.api.trace.Span;
-import io.opentelemetry.api.trace.SpanKind;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.RequestBody;
-import java.net.HttpURLConnection;
-import java.net.http.HttpRequest;
-import java.util.List;
-import java.util.Map;
 
 public class ExceptionInstrumentation {
     public static final String operatorUrl = "http://zk-operator.zk-client.svc.cluster.local/exception";
@@ -40,7 +32,7 @@ public class ExceptionInstrumentation {
             int responseCode = response.code();
             System.out.println("Response Code " + responseCode);
 
-            if (responseCode != HttpURLConnection.HTTP_OK) {
+            if (responseCode != 200) {
                 System.out.println("Failed to upload exception data. Got " + responseCode );
                 return responseCode;
             }
@@ -53,32 +45,6 @@ public class ExceptionInstrumentation {
             e.getStackTrace();
         }
         return 500;
-    }
-
-    private static void updateRedisWithExceptionSpan(String traceId, String parentSpanId, String exceptionTraceParent) {
-        String spanId = Utils.extractSpanId(exceptionTraceParent);
-        SpanDetails exceptionSpanDetails = new SpanDetails();
-        exceptionSpanDetails.setSpanKind(SpanKind.CLIENT);
-        exceptionSpanDetails.setParentSpanID(parentSpanId);
-
-        TraceDetails exceptionTraceDetails = new TraceDetails();
-        exceptionTraceDetails.setSpanDetails(spanId, exceptionSpanDetails);
-
-        RedisHandler redisHandler = new RedisHandler();
-        redisHandler.putTraceData(traceId, exceptionTraceDetails);
-        redisHandler.forceSync();
-    }
-
-    private static String getHeader(HttpRequest request, String headerName) {
-        Map<String, List<String>> headers = request.headers().map();
-        List<String> headerValues = headers.get(headerName);
-        if (headerValues != null && !headerValues.isEmpty()) {
-            String headerValue = headerValues.get(0);
-            return headerValue;
-        } else {
-            System.out.println("Header not found");
-        }
-        return null;
     }
 
 }

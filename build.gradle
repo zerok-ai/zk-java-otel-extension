@@ -97,7 +97,7 @@ dependencies {
   //Jakarta Servlet API to support springboot http instrumentation
   implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
 
-  implementation 'com.squareup.okhttp3:okhttp:3.0.0'
+  implementation 'com.squareup.okhttp3:okhttp:4.0.0'
 
   //All dependencies below are only for tests
   testImplementation("org.testcontainers:testcontainers:1.18.3")
