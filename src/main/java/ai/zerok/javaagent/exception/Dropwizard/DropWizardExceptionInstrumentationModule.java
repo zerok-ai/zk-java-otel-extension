@@ -36,6 +36,11 @@ public final class DropWizardExceptionInstrumentationModule extends Instrumentat
             className.startsWith("org.apache.commons.pool2") ||
             className.startsWith("org.json") ||
             className.startsWith("com.google.gson") ||
+            className.equals("okhttp3.MediaType") ||
+            className.equals("okhttp3.OkHttpClient") ||
+            className.equals("okhttp3.Request") ||
+            className.equals("okhttp3.Response") ||
+            className.equals("okhttp3.RequestBody") ||
             className.startsWith("redis.clients.jedis");
     }
 }

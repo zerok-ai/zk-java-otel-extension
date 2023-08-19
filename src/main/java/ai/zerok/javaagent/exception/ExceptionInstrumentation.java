@@ -7,11 +7,13 @@ import ai.zerok.javaagent.exporter.internal.TraceDetails;
 import ai.zerok.javaagent.utils.Utils;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanKind;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.RequestBody;
 import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Map;
 
@@ -25,33 +27,26 @@ public class ExceptionInstrumentation {
 
             System.out.println("Preparing to send Exception for trace ID:"+traceId+"& SpanID:"+parentSpanId+".");
 
-            HttpClient client = HttpClient.newHttpClient();
+            OkHttpClient client = new OkHttpClient();
             String body = Utils.getExceptionPayload(throwable);
+            MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
+            RequestBody requestBody = RequestBody.create(mediaType, body);
 
-            HttpRequest request = HttpRequest.newBuilder()
-                    .header("Content-Type", "application/json")
-                    .uri(URI.create(operatorUrl))
-                    .POST(HttpRequest.BodyPublishers.ofString(body))
+            Request request = new Request.Builder()
+                    .url(operatorUrl)
+                    .post(requestBody)
                     .build();
 
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            int responseCode = response.statusCode();
+            Response response = client.newCall(request).execute();
+            int responseCode = response.code();
             System.out.println("Response Code " + responseCode);
 
             if (responseCode != HttpURLConnection.HTTP_OK) {
                 System.out.println("Failed to upload exception data. Got " + responseCode );
                 return responseCode;
             }
-
-            /* Upload data to redis. */
-            String traceParent = getHeader(request, Utils.getTraceParentKey());
+            String traceParent = request.header(Utils.getTraceParentKey());
             System.out.println("traceparent : " + traceParent);
-            if(traceParent == null || traceParent.isEmpty()) {
-                System.out.println("missing traceparent " + traceParent);
-                return responseCode;
-            }
-
             return responseCode;
         }
         catch (Throwable e) {
