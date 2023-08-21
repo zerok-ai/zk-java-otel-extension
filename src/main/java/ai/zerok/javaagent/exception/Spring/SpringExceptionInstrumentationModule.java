@@ -35,11 +35,11 @@ public final class SpringExceptionInstrumentationModule extends InstrumentationM
             className.startsWith("org.apache.commons.pool2") ||
             className.startsWith("org.json") ||
             className.startsWith("com.google.gson") ||
-            className.equals("okhttp3.MediaType") ||
-            className.equals("okhttp3.OkHttpClient") ||
-            className.equals("okhttp3.Request") ||
-            className.equals("okhttp3.Response") ||
-            className.equals("okhttp3.RequestBody") ||
+            className.startsWith("okhttp3.MediaType") ||
+            className.startsWith("okhttp3.OkHttpClient") ||
+            className.startsWith("okhttp3.Request") ||
+            className.startsWith("okhttp3.Response") ||
+            className.startsWith("okhttp3.RequestBody") ||
             className.startsWith("redis.clients.jedis");
     }
 }

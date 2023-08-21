@@ -36,11 +36,16 @@ public final class DropWizardExceptionInstrumentationModule extends Instrumentat
             className.startsWith("org.apache.commons.pool2") ||
             className.startsWith("org.json") ||
             className.startsWith("com.google.gson") ||
-            className.equals("okhttp3.MediaType") ||
-            className.equals("okhttp3.OkHttpClient") ||
-            className.equals("okhttp3.Request") ||
-            className.equals("okhttp3.Response") ||
-            className.equals("okhttp3.RequestBody") ||
+            className.startsWith("okhttp3") ||
+            className.startsWith("okhttp3.OkHttpClient") ||
+            className.startsWith("okhttp3.Request") ||
+            className.startsWith("okhttp3.Response") ||
+            className.startsWith("okhttp3.RequestBody") ||
+            className.startsWith("okhttp3.internal.http.HttpHeaders") ||
+            className.startsWith("okhttp3.WebSocket") ||
+            className.startsWith("okhttp3.Cache") ||
+            className.startsWith("okhttp3.Authenticator") ||
+            className.startsWith("kotlin.collections.MapsKt") ||
             className.startsWith("redis.clients.jedis");
     }
 }
