@@ -1,15 +1,26 @@
 package ai.zerok.javaagent.exporter.internal;
 
 import com.google.gson.JsonObject;
+import com.google.gson.annotations.SerializedName;
 import io.opentelemetry.api.trace.SpanKind;
 
 public class SpanDetails {
+    @SerializedName("span_kind")
     private SpanKind spanKind;
+    @SerializedName("parent_span_id")
     private String parentSpanID;
+    @SerializedName("endpoint")
     private String endpoint;
+    @SerializedName("attributes")
     private JsonObject attributes;
-    private long start_ns;
-    private long end_ns;
+    @SerializedName("start_ns")
+    private long startNs;
+    @SerializedName("end_ns")
+    private long endNs;
+    @SerializedName("source_ip")
+    private String sourceIP;
+    @SerializedName("dest_ip")
+    private String destIP;
 
     public SpanKind getSpanKind() { return spanKind; }
     public void setSpanKind(SpanKind value) { this.spanKind = value; }
@@ -31,20 +42,36 @@ public class SpanDetails {
         this.attributes = attributes;
     }
 
-    public long getStart_ns() {
-        return start_ns;
+    public long getStartNs() {
+        return startNs;
     }
 
-    public void setStart_ns(long start_ns) {
-        this.start_ns = start_ns;
+    public void setStartNs(long startNs) {
+        this.startNs = startNs;
     }
 
-    public long getEnd_ns() {
-        return end_ns;
+    public long getEndNs() {
+        return endNs;
     }
 
-    public void setEnd_ns(long end_ns) {
-        this.end_ns = end_ns;
+    public void setEndNs(long endNs) {
+        this.endNs = endNs;
+    }
+
+    public String getSourceIP() {
+        return sourceIP;
+    }
+
+    public void setSourceIP(String sourceIP) {
+        this.sourceIP = sourceIP;
+    }
+
+    public String getDestIP(String string) {
+        return destIP;
+    }
+
+    public void setDestIP(String destIP) {
+        this.destIP = destIP;
     }
 
     @Override
@@ -52,9 +79,11 @@ public class SpanDetails {
         return "SpanDetails {"
             + "spanKind=" + spanKind + ", "
             + "parentSpanID=" + parentSpanID + ", "
-            + "start_ns=" + start_ns + ", "
-            + "end_ns=" + end_ns + ", "
+            + "startNs=" + startNs + ", "
+            + "endNs=" + endNs + ", "
             + "endpoint=" + endpoint + ", "
+            + "sourceIP=" + sourceIP + ", "
+            + "destIP=" + destIP + ", "
             + "attributes=" + attributes
             + "}";
     }

@@ -43,6 +43,7 @@ public class ZKExporter implements SpanExporter {
 
             traceStore.clear();
         } catch (Exception e) {
+            e.printStackTrace();
             result.fail();
             return result;
         }
@@ -50,7 +51,7 @@ public class ZKExporter implements SpanExporter {
         return result;
     }
 
-    private Pair getSourceDestIpPair(SpanData spanData, Attributes attributes) {
+    private Pair<String, String> getSourceDestIpPair(SpanData spanData, Attributes attributes) {
         //extract local and remote IP from spanData
         SpanKind spanKind = spanData.getKind();
         String destIP = "";
@@ -64,11 +65,30 @@ public class ZKExporter implements SpanExporter {
                 System.out.println("Failed to get local IP address");
                 e.printStackTrace();
             }
-            destIP = attributes.get(NET_SOCK_PEER_ADDR).toString();
-            sourceIP = IP.toString();
+            if(!attributes.isEmpty()) {
+                if (attributes.get(NET_SOCK_PEER_ADDR) != null) {
+                    destIP = attributes.get(NET_SOCK_PEER_ADDR).toString();
+                } else if (attributes.get(NET_PEER_NAME) != null) {
+                    try {
+                        InetAddress address = InetAddress.getByName(attributes.get(NET_PEER_NAME));
+                        destIP = address.getHostAddress();
+                    } catch (UnknownHostException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (IP != null) {
+                    sourceIP = IP.getHostAddress();
+                }
+            }
         } else if(spanKind == SpanKind.SERVER) {
-            destIP = attributes.get(NET_SOCK_HOST_ADDR).toString();
-            sourceIP = attributes.get(NET_SOCK_PEER_ADDR).toString();
+            if(!attributes.isEmpty()) {
+                if (attributes.get(NET_SOCK_HOST_ADDR) != null) {
+                    destIP = attributes.get(NET_SOCK_HOST_ADDR).toString();
+                }
+                if (attributes.get(NET_SOCK_PEER_ADDR) != null) {
+                    sourceIP = attributes.get(NET_SOCK_PEER_ADDR).toString();
+                }
+            }
         }
         return Pair.of(sourceIP, destIP);
     }
@@ -80,24 +100,24 @@ public class ZKExporter implements SpanExporter {
                 traceStore.put(traceId, new TraceDetails());
             }
 
+            Attributes attributes = spanData.getAttributes();
+            Pair<String,String> sourceDestIpPair = getSourceDestIpPair(spanData, attributes);
+            String sourceIp = sourceDestIpPair.getLeft();
+            String destIp = sourceDestIpPair.getRight();
+
             SpanDetails spanDetails = new SpanDetails();
             spanDetails.setParentSpanID(spanData.getParentSpanId());
             spanDetails.setSpanKind(spanData.getKind());
-            spanDetails.setStart_ns(spanData.getStartEpochNanos());
-            spanDetails.setEnd_ns(spanData.getEndEpochNanos());
+            spanDetails.setStartNs(spanData.getStartEpochNanos());
+            spanDetails.setEndNs(spanData.getEndEpochNanos());
+            if(!sourceIp.isEmpty())
+                spanDetails.setSourceIP(sourceIp);
+            if(!destIp.isEmpty())
+                spanDetails.setDestIP(destIp);
 
             if(SET_SPAN_ATTRIBUTES) {
-                Attributes attributes = spanData.getAttributes();
-
-                Pair sourceDestIpPair = getSourceDestIpPair(spanData, attributes);
-                String sourceIP = sourceDestIpPair.getLeft().toString();
-                String destIP = sourceDestIpPair.getRight().toString();
-
-                Map<AttributeKey<?>, Object> attributesMap = attributes.asMap();
-                attributesMap.put(AttributeKey.stringKey("source.ip"), sourceIP);
-                attributesMap.put(AttributeKey.stringKey("dest.ip"), destIP);
-
                 Gson gson = new Gson();
+                Map<AttributeKey<?>, Object> attributesMap = attributes.asMap();
                 try {
                     spanDetails.setAttributes(gson.toJsonTree(attributesMap).getAsJsonObject());
                 } catch (Exception e) {

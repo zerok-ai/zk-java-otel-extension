@@ -62,7 +62,6 @@ dependencies {
 
   implementation 'com.google.code.gson:gson:2.10.1'
   implementation 'redis.clients:jedis:4.4.0-m2'
-
   /*
   Interfaces and SPIs that we implement. We use `compileOnly` dependency because during
   runtime all necessary classes are provided by javaagent itself.
@@ -93,7 +92,6 @@ dependencies {
    */
   implementation 'org.apache.commons:commons-lang3:3.12.0'
   implementation 'io.opentelemetry.instrumentation:opentelemetry-jdbc:1.21.0-alpha'
-
   //Jakarta Servlet API to support springboot http instrumentation
   implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
 
