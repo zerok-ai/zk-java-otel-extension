@@ -57,7 +57,7 @@ public class ExceptionInstrumentation {
             return responseCode;
         }
         catch (Throwable e) {
-            System.out.println("Exception caught while sending exception data to operator."+e.getMessage());
+            System.out.println("Exception caught while sending exception data to operator "+e.getMessage());
             e.getStackTrace();
         }
         return 500;
