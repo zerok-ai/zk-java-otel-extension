@@ -13,7 +13,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class RedisHandler {
-    String redisHostName = "redis-master.zk-client.svc.cluster.local";
+    String redisHostName = "redis.zk-client.svc.cluster.local";
     int redisPort = 6379;
     int redisDB = 3;
     int ttlInSeconds = 15 * 60; // Set the TTL to 15 mins
