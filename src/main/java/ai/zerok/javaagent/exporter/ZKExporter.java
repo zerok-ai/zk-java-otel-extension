@@ -23,10 +23,6 @@ import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.*;
 public class ZKExporter implements SpanExporter {
     RedisHandler redisHandler = new RedisHandler();
     Map<String, TraceDetails> traceStore = new HashMap<>();
-    boolean SET_HTTP_ENDPOINT = false;
-    boolean SET_SPAN_ATTRIBUTES = true;
-    private static final String exceptionUrl = "http://zk-operator.zk-client.svc.cluster.local/exception";
-    private static final String postMethod = "POST";
 
     @Override
     public CompletableResultCode export(Collection<SpanData> spanDataList) {
@@ -115,15 +111,13 @@ public class ZKExporter implements SpanExporter {
             if(!destIp.isEmpty())
                 spanDetails.setDestIP(destIp);
 
-            if(SET_SPAN_ATTRIBUTES) {
-                Gson gson = new Gson();
-                Map<AttributeKey<?>, Object> attributesMap = attributes.asMap();
-                try {
-                    spanDetails.setAttributes(gson.toJsonTree(attributesMap).getAsJsonObject());
-                } catch (Exception e) {
-                    System.out.println("Failed to set span attributes. traceId: " + traceId + ", spanId: " + spanData.getSpanId());
-                    e.printStackTrace();
-                }
+            Gson gson = new Gson();
+            Map<AttributeKey<?>, Object> attributesMap = attributes.asMap();
+            try {
+                spanDetails.setAttributes(gson.toJsonTree(attributesMap).getAsJsonObject());
+            } catch (Exception e) {
+                System.out.println("Failed to set span attributes. traceId: " + traceId + ", spanId: " + spanData.getSpanId());
+                e.printStackTrace();
             }
 
             TraceDetails traceDetails = traceStore.get(traceId);

@@ -6,20 +6,26 @@ import com.google.gson.GsonBuilder;
 import java.util.Map;
 
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.DefaultJedisClientConfig;
 import redis.clients.jedis.Pipeline;
 
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import ai.zerok.javaagent.utils.ConfigurationManager;
+
 public class RedisHandler {
-    String redisHostName = "redis.zk-client.svc.cluster.local";
-    int redisPort = 6379;
-    int redisDB = 3;
-    int ttlInSeconds = 15 * 60; // Set the TTL to 15 mins
-    int batchSize = 100; // Set the desired batch size
-    long durationMillis = 5 * 1000; // Set the desired duration for sync (In ms)
-    long timerSyncDuration = 30 * 1000; // Sync items in pipeline after this duration is elapsed.n (In ms)
+    ConfigurationManager configManager = new ConfigurationManager();
+
+    String redisHostName = configManager.getStringValue("ZK_REDIS_HOSTNAME");
+    int redisPort = configManager.getIntValue("ZK_REDIS_PORT");
+    String redisPassword = configManager.getStringValue("ZK_REDIS_PASSWORD");
+    int redisDB = configManager.getIntValue("ZK_REDIS_DB");
+    int ttlInSeconds = configManager.getIntValue("ZK_REDIS_TTL");
+    int batchSize = configManager.getIntValue("ZK_REDIS_BATCH_SIZE");
+    long durationMillis = configManager.getLongValue("ZK_REDIS_DURATION_MILLIS");
+    long timerSyncDuration = configManager.getLongValue("ZK_REDIS_TIMER_SYNC_DURATION");
 
     Gson gson = new GsonBuilder().create();
     Jedis jedis;
@@ -33,7 +39,8 @@ public class RedisHandler {
     }
 
     private void initializeRedisConn() {
-        jedis = new Jedis(redisHostName, redisPort);
+        DefaultJedisClientConfig defaultJedisClientConfig = DefaultJedisClientConfig.builder().password(redisPassword).build();
+        jedis = new Jedis(redisHostName, redisPort, defaultJedisClientConfig);
         pipeline = jedis.pipelined();
         count = 0;
         startTime = System.currentTimeMillis();
