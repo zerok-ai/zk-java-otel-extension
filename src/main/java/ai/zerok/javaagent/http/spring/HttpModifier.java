@@ -37,7 +37,7 @@ public class HttpModifier {
             SpanContext spanContext = span.getSpanContext();
             String spanId = spanContext.getSpanId();
             String traceId = spanContext.getTraceId();
-            String parentSpandId = Utils.getParentSpandId(span);
+            String parentSpandId = Utils.getParentSpanId(span);
             String traceParent = Utils.getTraceParent(traceId, parentSpandId);
             httpServletResponse.setHeader(Utils.getTraceParentKey(), traceParent);
             System.out.println("Adding trace headers to response");

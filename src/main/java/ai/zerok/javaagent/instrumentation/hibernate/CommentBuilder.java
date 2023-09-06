@@ -10,8 +10,6 @@ import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanContext;
 import io.opentelemetry.javaagent.bootstrap.Java8BytecodeBridge;
 
-import java.lang.reflect.Method;
-
 public class CommentBuilder {
 
   private static final String queryIdentifierFormatter = "%s: ";
@@ -23,7 +21,7 @@ public class CommentBuilder {
   public static String addCommentToQueryString(String sql, String queryIdentifier) {
     Span span = Java8BytecodeBridge.currentSpan();
 
-    String parentSpandId = Utils.getParentSpandId(span);
+    String parentSpandId = Utils.getParentSpanId(span);
 
     String traceState = Utils.getTraceState(parentSpandId);
 

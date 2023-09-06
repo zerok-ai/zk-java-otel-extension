@@ -1,20 +1,11 @@
 package ai.zerok.javaagent.utils;
 
-import ai.zerok.javaagent.exporter.internal.RedisHandler;
-import ai.zerok.javaagent.exporter.internal.SpanDetails;
-import ai.zerok.javaagent.exporter.internal.TraceDetails;
 import io.opentelemetry.api.trace.SpanContext;
 
-import java.io.OutputStream;
 import java.lang.reflect.Method;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import io.opentelemetry.api.trace.Span;
-import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.javaagent.bootstrap.Java8BytecodeBridge;
 
 public final class Utils {
@@ -65,7 +56,7 @@ public final class Utils {
         return traceStatePrefix + spanId;
     }
 
-    public static String getParentSpandId(Span span) {
+    public static String getParentSpanId(Span span) {
         String parentSpanId = null;
         try {
             Class<?> classObj = span.getClass();
